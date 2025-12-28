@@ -1,0 +1,525 @@
+Tên API,Mô tả chức năng,Input,Output,Quy trình xử lý
+"http://localhost:8001/api/auth (action=login)","📁 Backend APIs - Xác thực người dùng
+Chức năng: Xử lý đăng nhập, đăng ký và đăng xuất
+Hỗ trợ:
+- login: Kiểm tra tài khoản/mật khẩu, tạo session
+- register: Tạo tài khoản mới với mã hóa mật khẩu
+- logout: Hủy session","//Input
+POST: {
+  ""identifier"": ""username or email"",
+  ""password"": ""password""
+}","//Output
+JSON: {
+  ""success"": true/false,
+  ""message"": ""message"",
+  ""token"": ""JWT token"",
+  ""user"": {
+    ""id"": ""user_id"",
+    ""username"": ""username"",
+    ""email"": ""email"",
+    ""role"": ""1/2/3""
+  }
+}","Bước 1: User điền form đăng nhập với identifier (username/email) và password
+Bước 2: API Gateway nhận request, forward đến Auth Service endpoint /api/auth
+Bước 3: Auth Service xử lý: Tìm user trong DB (MySQL/MongoDB), verify password bằng password_verify(), tạo session
+Bước 4: Response trả về Frontend với token và thông tin user"
+"http://localhost:8001/api/auth (action=register)","📁 Backend APIs - Đăng ký tài khoản
+Chức năng: Tạo tài khoản mới
+Xử lý:
+- Validate dữ liệu đầu vào
+- Kiểm tra email/username trùng
+- Hash password bằng password_hash()
+- Tạo user mới trong DB","//Input
+POST: {
+  ""name"": ""Full Name"",
+  ""email"": ""email@example.com"",
+  ""password"": ""password"",
+  ""phone"": ""0987654321"",
+  ""address"": ""address""
+}","//Output
+JSON: {
+  ""success"": true/false,
+  ""message"": ""Đăng ký thành công"",
+  ""token"": ""JWT token"",
+  ""user"": {
+    ""id"": ""auto_generated_id"",
+    ""name"": ""Full Name"",
+    ""email"": ""email""
+  }
+}","Bước 1: User điền form đăng ký
+Bước 2: API Gateway forward request đến Auth Service
+Bước 3: Auth Service validate dữ liệu, kiểm tra email/username trùng, hash password bằng password_hash(), tạo user mới trong DB
+Bước 4: Response trả về với thông tin user mới"
+"http://localhost:8001/api/check-session","📁 Backend APIs - Kiểm tra phiên đăng nhập
+Chức năng: Kiểm tra xem người dùng có đang đăng nhập không
+Trả về: Thông tin user nếu có session","//Input
+GET","//Output
+JSON: {
+  ""loggedIn"": true/false,
+  ""user"": {
+    ""id"": ""user_id"",
+    ""username"": ""username"",
+    ""email"": ""email"",
+    ""role"": ""role""
+  } or null
+}","Bước 1: Client gửi GET request kèm session cookie
+Bước 2: Backend kiểm tra $_SESSION['user']
+Bước 3: Trả về thông tin user nếu có session, ngược lại trả về loggedIn: false"
+"http://localhost:8001/api/logout","📁 Backend APIs - Đăng xuất
+Chức năng: Hủy session và đăng xuất người dùng","//Input
+POST/GET","//Output
+JSON: {
+  ""success"": true,
+  ""message"": ""Đăng xuất thành công""
+}","Bước 1: User click nút đăng xuất
+Bước 2: Frontend gửi request đến /api/logout
+Bước 3: Backend gọi session_destroy() để hủy session
+Bước 4: Response xác nhận đăng xuất thành công"
+    "http://localhost:8000/api/sach","📚 Quản lý Sách - CRUD sách
+    Chức năng: Gọi controller SachController để quản lý danh sách sách
+    Xử lý: Đọc từ QLTV.SACH.json hoặc MySQL","//Input
+GET","//Output
+JSON: {
+  ""success"": true,
+  ""data"": [
+    {
+      ""ID"": ""S001"",
+      ""ten_sach"": ""Book Name"",
+      ""tac_gia"": ""Author"",
+      ""nam_xuat_ban"": 2024,
+      ""so_luong"": 10,
+      ""trang_thai"": ""Có sẵn"",
+      ""image"": ""/images/book.jpg""
+    }
+  ]
+}","Bước 1: Frontend request danh sách sách
+Bước 2: SachController đọc từ QLTV.SACH.json hoặc MySQL
+Bước 3: Trả về array chứa thông tin tất cả sách"
+"http://localhost:8000/api/add-book","📚 Quản lý Sách - Thêm sách mới
+Chức năng: Thêm sách với upload ảnh
+Xử lý:
+- Upload ảnh vào /frontend/images/
+- Tạo ID tự động
+- Lưu vào QLTV.SACH.json","//Input
+POST FormData: {
+  ""ID"": ""S001"",
+  ""ten_sach"": ""Book Name"",
+  ""tac_gia"": ""Author"",
+  ""nam_xuat_ban"": 2024,
+  ""ngon_ngu"": ""Vietnamese"",
+  ""danh_muc"": ""Category"",
+  ""gia_sach"": ""50000"",
+  ""so_luong"": 10,
+  ""book_image"": File
+}","//Output
+JSON: {
+  ""success"": true/false,
+  ""message"": ""Thêm sách thành công"",
+  ""book"": {
+    ""ID"": ""S001"",
+    ""ten_sach"": ""Book Name"",
+    ""image"": ""/images/book-name.jpg""
+  }
+}","Bước 1: Admin điền form thêm sách mới, chọn ảnh
+Bước 2: Frontend gửi FormData với multipart/form-data
+Bước 3: Backend xử lý upload ảnh vào /frontend/images/, sanitize tên file
+Bước 4: Lưu thông tin sách vào QLTV.SACH.json với ID tự động
+Bước 5: Response xác nhận thành công"
+"http://localhost:8000/api/update-book","📚 Quản lý Sách - Cập nhật thông tin sách
+Chức năng: Sửa thông tin sách (tên, tác giả, số lượng, giá...)
+Cập nhật: Trạng thái 'Có sẵn'/'Hết sách' dựa trên số lượng","//Input
+POST JSON: {
+  ""ID"": ""S001"",
+  ""ten_sach"": ""New Name"",
+  ""tac_gia"": ""Author"",
+  ""so_luong"": 15
+}","//Output
+JSON: {
+  ""success"": true/false,
+  ""message"": ""Cập nhật thành công""
+}","Bước 1: Admin sửa thông tin sách
+Bước 2: Frontend gửi JSON với các field cần update
+Bước 3: Backend tìm sách theo ID trong QLTV.SACH.json
+Bước 4: Update các field, tự động cập nhật trang_thai dựa vào so_luong
+Bước 5: Lưu lại file JSON và response"
+"http://localhost:8000/api/search","📚 Quản lý Sách - Tìm kiếm sách
+Chức năng: Tìm kiếm sách theo từ khóa (có hỗ trợ tiếng Việt không dấu)
+Tìm theo: Tên sách, tác giả, thể loại, ngôn ngữ","//Input
+GET: ?q=keyword","//Output
+JSON: {
+  ""success"": true,
+  ""data"": [
+    {
+      ""ID"": ""S001"",
+      ""ten_sach"": ""Matched Book"",
+      ""tac_gia"": ""Author"",
+      ""relevance"": 95
+    }
+  ],
+  ""total"": 5
+}","Bước 1: User nhập từ khóa tìm kiếm
+Bước 2: Frontend gửi GET request với query parameter q
+Bước 3: Backend chuẩn hóa chuỗi (bỏ dấu tiếng Việt), tìm kiếm trong ten_sach, tac_gia, danh_muc
+Bước 4: Trả về danh sách sách khớp với từ khóa"
+"http://localhost:8000/api/nguoidung","👥 Quản lý Người dùng - Danh sách người dùng
+Chức năng: Lấy danh sách người dùng
+Filter: Có thể lọc theo loại người dùng (loai parameter)","//Input
+GET: ?loai=1/2/3","//Output
+JSON: {
+  ""success"": true,
+  ""data"": [
+    {
+      ""ID"": ""U001"",
+      ""ten"": ""User Name"",
+      ""email"": ""email"",
+      ""loai"": ""1"",
+      ""dia_chi"": ""address"",
+      ""so_dien_thoai"": ""phone""
+    }
+  ]
+}","Bước 1: Admin request danh sách người dùng
+Bước 2: Backend đọc từ QLTV.NGUOIDUNG.json
+Bước 3: Filter theo loai nếu có (1=Admin, 2=Thủ thư, 3=User)
+Bước 4: Trả về array người dùng"
+"http://localhost:8000/api/update-profile","👥 Quản lý Người dùng - Cập nhật hồ sơ
+Chức năng: Cập nhật địa chỉ và số điện thoại
+Tự động: Thêm cột so_dien_thoai nếu chưa tồn tại","//Input
+POST JSON: {
+  ""id"": ""U001"",
+  ""address"": ""New Address"",
+  ""phone"": ""0987654321""
+}","//Output
+JSON: {
+  ""success"": true/false,
+  ""message"": ""Cập nhật thành công""
+}","Bước 1: User cập nhật địa chỉ/SĐT trong profile
+Bước 2: Frontend gửi POST với thông tin mới
+Bước 3: Backend kiểm tra cột so_dien_thoai, tự động ALTER TABLE nếu chưa có
+Bước 4: UPDATE NGUOIDUNG SET dia_chi, so_dien_thoai WHERE ID
+Bước 5: Response xác nhận"
+"http://localhost:8000/api/change-password","👥 Quản lý Người dùng - Đổi mật khẩu
+Chức năng: Thay đổi mật khẩu người dùng
+Bảo mật: Kiểm tra mật khẩu cũ, mã hóa mật khẩu mới
+Hỗ trợ: Cả MySQL và MongoDB","//Input
+POST JSON: {
+  ""old_password"": ""current_pass"",
+  ""new_password"": ""new_pass"",
+  ""confirm_password"": ""new_pass""
+}","//Output
+JSON: {
+  ""success"": true/false,
+  ""message"": ""Đổi mật khẩu thành công""
+}","Bước 1: User điền form đổi mật khẩu
+Bước 2: Frontend validate và gửi request
+Bước 3: Backend lấy user_id từ session, verify old_password
+Bước 4: Validate new_password (min 6 ký tự, khớp confirm)
+Bước 5: Hash mật khẩu mới, UPDATE trong DB
+Bước 6: Response kết quả"
+"http://localhost:8000/api/borrow","📖 Quản lý Mượn/Trả - Mượn sách
+Chức năng: Tạo phiếu mượn sách mới
+Kiểm tra: Số lượng sách còn trong kho
+Cập nhật: Giảm số lượng sách, tạo record trong MUON_TRA","//Input
+POST JSON: {
+  ""id_sach"": ""S001"",
+  ""id_nguoi_dung"": ""U001""
+}","//Output
+JSON: {
+  ""success"": true/false,
+  ""message"": ""Mượn sách thành công"",
+  ""muon_tra_id"": ""MT001""
+}","Bước 1: User chọn sách muốn mượn
+Bước 2: Frontend gửi id_sach và user_id từ session
+Bước 3: Backend kiểm tra so_luong > 0 trong QLTV.SACH.json
+Bước 4: Tạo record mới trong QLTV.MUON_TRA.json với ID tự động, ngày mượn = hôm nay, trang_thai = Đang mượn
+Bước 5: Giảm so_luong sách xuống 1
+Bước 6: Response xác nhận"
+"http://localhost:8000/api/return_muon","📖 Quản lý Mượn/Trả - Trả sách (người dùng)
+Chức năng: Đánh dấu sách đã trả
+Cập nhật: Tăng số lượng sách, cập nhật trạng thái","//Input
+POST JSON: {
+  ""id_sach"": ""S001""
+}","//Output
+JSON: {
+  ""success"": true/false,
+  ""message"": ""Trả sách thành công""
+  }","Bước 1: User chọn sách muốn trả
+  Bước 2: Frontend gửi id_sach
+  Bước 3: Backend tìm record trong MUON_TRA với id_sach và trang_thai != Đã trả
+  Bước 4: Update trang_thai = Đã trả, ngay_tra = hôm nay
+  Bước 5: Tăng so_luong sách lên 1 trong SACH.json
+  Bước 6: Response xác nhận"
+"http://localhost:8000/api/update-borrow-status","📖 Quản lý Mượn/Trả - Cập nhật trạng thái mượn
+Chức năng: Thay đổi trạng thái phiếu mượn
+Trạng thái: 'Đang mượn', 'Chờ xác nhận trả', 'Đã trả'","//Input
+POST JSON: {
+  ""ID_muon_tra"": ""MT001"",
+  ""trang_thai"": ""Đang mượn/Chờ xác nhận trả/Đã trả""
+}","//Output
+JSON: {
+  ""success"": true/false,
+  ""message"": ""Cập nhật trạng thái thành công""
+}","Bước 1: Admin/Thủ thư thay đổi trạng thái phiếu mượn
+Bước 2: Frontend gửi ID_muon_tra và trang_thai mới
+Bước 3: Backend validate trang_thai (phải thuộc 3 giá trị cho phép)
+Bước 4: Tìm và update record trong MUON_TRA.json
+Bước 5: Response xác nhận"
+"http://localhost:8000/api/approve-return","📖 Quản lý Mượn/Trả - Duyệt trả sách (Admin/Thủ thư)
+Chức năng: Admin/thủ thư xác nhận việc trả sách
+Cập nhật: Đặt trạng thái 'Đã trả', ghi ngày trả","//Input
+POST JSON: {
+  ""ID_muon_tra"": ""MT001""
+}","//Output
+JSON: {
+  ""success"": true/false,
+  ""message"": ""Đã duyệt trả sách""
+}","Bước 1: Thủ thư/Admin duyệt yêu cầu trả sách
+Bước 2: Frontend gửi ID_muon_tra
+Bước 3: Backend tìm record, update trang_thai = Đã trả, ngay_tra = hôm nay
+Bước 4: Response xác nhận"
+"http://localhost:8000/api/muon_tra","📖 Quản lý Mượn/Trả - Quản lý mượn trả
+Chức năng: Gọi controller MuontraController
+Xử lý: Đọc từ QLTV.MUON_TRA.json","//Input
+GET","//Output
+JSON: {
+  ""success"": true,
+  ""data"": [
+    {
+      ""ID_muon_tra"": ""MT001"",
+      ""ID_sach"": ""S001"",
+      ""ID_nguoi_dung"": ""U001"",
+      ""ngay_muon"": ""2024-01-15"",
+      ""ngay_tra"": null,
+      ""trang_thai"": ""Đang mượn""
+    }
+  ]
+}","Bước 1: Request danh sách mượn trả
+Bước 2: MuontraController đọc QLTV.MUON_TRA.json
+Bước 3: Trả về tất cả records"
+"http://localhost:8000/api/phieumuonsach","📖 Quản lý Mượn/Trả - Quản lý phiếu mượn
+Chức năng: Gọi controller PhieumuonsachController
+Xử lý: Đọc từ QLTV.PHIEUMUONSACH.json","//Input
+GET","//Output
+JSON: {
+  ""success"": true,
+  ""data"": [
+    {
+      ""ID_phieu"": ""PM001"",
+      ""ID_nguoi_dung"": ""U001"",
+      ""ngay_lap"": ""2024-01-15"",
+      ""trang_thai"": ""Active""
+    }
+  ]
+}","Bước 1: Request danh sách phiếu mượn
+Bước 2: PhieumuonsachController đọc QLTV.PHIEUMUONSACH.json
+Bước 3: Trả về tất cả phiếu mượn"
+"http://localhost:8000/api/danhmuc","📊 Danh mục & Tác giả - Danh mục sách
+Chức năng: Gọi controller DanhmucController để quản lý danh mục
+Xử lý: Đọc từ QLTV.DANHMUC.json","//Input
+GET","//Output
+JSON: {
+  ""success"": true,
+  ""data"": [
+    {
+      ""ID"": ""DM001"",
+      ""ten_danh_muc"": ""Văn học"",
+      ""mo_ta"": ""Description""
+    }
+  ]
+}","Bước 1: Request danh sách danh mục
+Bước 2: DanhmucController đọc QLTV.DANHMUC.json
+Bước 3: Trả về tất cả danh mục sách"
+"http://localhost:8000/api/categories","📊 Danh mục & Tác giả - Lấy danh sách danh mục
+Chức năng: Lấy tất cả danh mục từ QLTV.DANHMUC.json
+Mục đích: Hiển thị dropdown trong form","//Input
+GET","//Output
+JSON: {
+  ""success"": true,
+  ""data"": [
+    {
+      ""ID"": ""DM001"",
+      ""ten_danh_muc"": ""Văn học""
+    }
+  ]
+}","Bước 1: Frontend cần dropdown danh mục
+Bước 2: API đọc trực tiếp QLTV.DANHMUC.json
+Bước 3: Trả về danh sách để hiển thị trong form"
+"http://localhost:8000/api/tacgia","📊 Danh mục & Tác giả - Quản lý tác giả
+Chức năng: Gọi controller TacgiaController
+Xử lý: Đọc từ QLTV.TACGIA.json","//Input
+GET","//Output
+JSON: {
+  ""success"": true,
+  ""data"": [
+    {
+      ""ID"": ""TG001"",
+      ""ten_tac_gia"": ""Nguyễn Nhật Ánh"",
+      ""quoc_tich"": ""Việt Nam"",
+      ""nam_sinh"": 1955
+    }
+  ]
+}","Bước 1: Request danh sách tác giả
+Bước 2: TacgiaController đọc QLTV.TACGIA.json
+Bước 3: Trả về tất cả tác giả"
+"http://localhost:8000/api/support","🆘 Hỗ trợ & Thông báo - Gửi yêu cầu hỗ trợ
+Chức năng: Người dùng gửi ticket hỗ trợ với ảnh chụp màn hình
+POST: Tạo ticket mới với ID tự động
+GET: Lấy danh sách ticket","//Input
+POST FormData: {
+  ""title"": ""Issue Title"",
+  ""details"": ""Description"",
+  ""screenshot"": File
+}
+GET: (list tickets)","//Output
+POST Response: {
+  ""success"": true,
+  ""message"": ""Đã gửi yêu cầu hỗ trợ"",
+  ""id"": ""SUP123456""
+}
+
+GET Response: {
+  ""success"": true,
+  ""data"": [tickets array]
+}","POST: Bước 1: User gặp vấn đề, điền form support với title, details, upload screenshot
+Bước 2: Backend xử lý upload ảnh vào /images/support/
+Bước 3: Tạo ticket mới với ID tự động (SUP + uniqid)
+Bước 4: Lưu vào QLTV.SUPPORT.json
+Bước 5: Response với ticket ID
+
+GET: Bước 1: Admin/Thủ thư xem danh sách tickets
+Bước 2: Đọc và trả về tất cả từ SUPPORT.json"
+"http://localhost:8000/api/reply-support","🆘 Hỗ trợ & Thông báo - Phản hồi hỗ trợ
+Chức năng: Admin/thủ thư phản hồi ticket
+Quyền: Chỉ role 1 (admin) và 2 (thủ thư)
+Lưu: Ghi vào notifications.json","//Input
+POST JSON: {
+  ""support_id"": ""SUP123456"",
+  ""reply"": ""Reply message"",
+  ""username"": ""user_email""
+}","//Output
+JSON: {
+  ""success"": true/false,
+  ""message"": ""Đã gửi phản hồi""
+}","Bước 1: Admin/Thủ thư viết phản hồi cho ticket
+Bước 2: Frontend gửi support_id, reply, username
+Bước 3: Backend kiểm tra role (chỉ role 1,2 được phản hồi)
+Bước 4: Tạo notification mới trong notifications.json
+Bước 5: User sẽ nhận được notification khi login
+Bước 6: Response xác nhận"
+"http://localhost:8000/api/notifications","🆘 Hỗ trợ & Thông báo - Thông báo
+Chức năng: Lấy thông báo phản hồi cho người dùng
+Filter: Chỉ hiển thị thông báo của user đang đăng nhập
+Sắp xếp: Theo thời gian mới nhất","//Input
+GET","//Output
+JSON: {
+  ""success"": true,
+  ""data"": [
+    {
+      ""username"": ""user@email.com"",
+      ""support_id"": ""SUP123"",
+      ""reply"": ""Admin reply"",
+      ""created_at"": ""2024-01-15 10:30:00"",
+      ""replied_by"": ""Admin""
+    }
+  ]
+}","Bước 1: User login, frontend request notifications
+Bước 2: Backend lấy username từ session
+Bước 3: Đọc notifications.json, filter theo username
+Bước 4: Sắp xếp theo created_at giảm dần
+Bước 5: Trả về notifications của user"
+"http://localhost:8000/api/stats","📈 Thống kê - Thống kê tổng quan
+Chức năng: Hiển thị số liệu thống kê
+Dữ liệu:
+- Tổng số sách đang mượn
+- Tổng số đã trả
+- Số lượng mượn/trả trong ngày
+- Tổng số sách trong thư viện
+- Số sách có sẵn","//Input
+GET","//Output
+JSON: {
+  ""success"": true,
+  ""data"": {
+    ""totalBorrowed"": 25,
+    ""totalReturned"": 10,
+    ""borrowedToday"": 3,
+    ""returnedToday"": 2,
+    ""totalBooks"": 150,
+    ""totalAvailable"": 125
+  }
+}","Bước 1: Admin/Thủ thư mở dashboard
+Bước 2: Frontend request thống kê
+Bước 3: Backend đọc MUON_TRA.json, đếm theo trang_thai
+Bước 4: Đọc SACH.json, đếm tổng số sách và sách có sẵn
+Bước 5: Tính số mượn/trả trong ngày bằng cách so sánh ngày
+Bước 6: Trả về object chứa tất cả số liệu"
+"http://localhost:8001/api/taikhoan","📁 Backend APIs - Quản lý tài khoản
+Chức năng: Đọc/ghi danh sách tài khoản vào file Taikhoan.html
+GET: Lấy danh sách tài khoản
+POST: Thêm tài khoản mới (tránh trùng username)","//Input
+GET: (list accounts)
+POST: {
+  ""username"": ""user123"",
+  ""password"": ""pass123""
+}","//Output
+GET: {
+  ""success"": true,
+  ""accounts"": [
+    {""username"": ""user1"", ""password"": ""pass1""}
+  ]
+}
+
+POST: {
+  ""success"": true/false,
+  ""message"": ""Account added""
+}","GET: Bước 1: Request danh sách accounts
+Bước 2: Parse Taikhoan.html, extract JSON từ <script id='savedAccounts'>
+Bước 3: Trả về array accounts
+
+POST: Bước 1: Submit new account
+Bước 2: Parse HTML, extract existing accounts
+Bước 3: Check duplicate username
+Bước 4: Append new account, update <script> tag trong HTML
+Bước 5: Write back to Taikhoan.html"
+"http://localhost:8000/api/update-user-address","👥 Quản lý Người dùng - Cập nhật địa chỉ
+Chức năng: Cập nhật địa chỉ người dùng
+Xử lý: UPDATE NGUOIDUNG SET dia_chi WHERE ID","//Input
+POST JSON: {
+  ""id"": ""U001"",
+  ""address"": ""New Address""
+}","//Output
+JSON: {
+  ""success"": true/false,
+  ""message"": ""Cập nhật địa chỉ thành công""
+}","Bước 1: User update địa chỉ
+Bước 2: Frontend gửi user id và address mới
+Bước 3: Backend UPDATE NGUOIDUNG SET dia_chi WHERE ID
+Bước 4: Response xác nhận"
+"http://localhost:8000/api/db-config","🔐 Session & Auth - Cấu hình kết nối database
+Chức năng: Quản lý cấu hình database (MySQL/MongoDB)
+GET: Xem cấu hình hiện tại
+POST: Thay đổi cấu hình","//Input
+GET/POST","//Output
+JSON: {
+  ""success"": true,
+  ""config"": {
+    ""host"": ""localhost"",
+    ""database"": ""qltv_demo"",
+    ""type"": ""mysql/mongodb""
+  }
+}","Bước 1: Admin muốn xem/thay đổi cấu hình DB
+Bước 2: DbConfigController đọc hoặc update config
+Bước 3: Trả về thông tin cấu hình hiện tại"
+"http://localhost:8000/api/auth","🔐 Session & Auth - Xác thực từ frontend
+Chức năng: Xử lý xác thực từ frontend
+Xử lý: Gọi backend auth service","//Input
+POST: auth data","//Output
+JSON: auth response","Xử lý xác thực từ frontend, forward request đến backend"
+"http://localhost:8000/api/check-session","🔐 Session & Auth - Kiểm tra session từ frontend
+Chức năng: Kiểm tra session từ frontend
+Xử lý: Gọi backend session service","//Input
+GET","//Output
+JSON: session status","Kiểm tra session từ frontend, forward request đến backend"
+"http://localhost:8000/api/logout","🔐 Session & Auth - Đăng xuất từ frontend
+Chức năng: Đăng xuất từ frontend
+Xử lý: Hủy session và redirect","//Input
+POST/GET","//Output
+JSON: logout success","Đăng xuất từ frontend, forward request đến backend để hủy session"

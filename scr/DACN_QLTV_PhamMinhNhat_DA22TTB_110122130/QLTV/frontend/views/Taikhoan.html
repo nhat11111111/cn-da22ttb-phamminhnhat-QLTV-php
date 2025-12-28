@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Danh sách tài khoản đã lưu</title>
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+    <main class="container">
+        <h1>Tài khoản đã lưu</h1>
+        <p>Danh sách tài khoản (username & password) được lưu khi người dùng đăng ký từ trang đăng nhập. Dữ liệu được lưu cục bộ trong tệp này.</p>
+
+        <div id="accountsList"></div>
+        <pre id="rawJson" style="display:none"></pre>
+    </main>
+
+    <!-- Stored accounts JSON for the backend/frontend to read and update -->
+    <script id="savedAccounts" type="application/json">[{"username":"hoanglong123","password":"[{"username":"nhat2","password":"[{"username":"nhat","password":"[
+        {"username":"nhat","password":"123456","loai":2,"full_name":"Nhat User"},
+        {"username":"nhatthuthu","password":"123456","loai":3,"full_name":"Nhat Thu Thu"},
+        {"username":"admin130","password":"123456","loai":1,"full_name":"Admin 130"}
+    ]y$w4ib8YnmaoshqPiDxIFG3eat4lAG5TFX7TGk7uexeXVxUWtfXakBa","loai":2,"full_name":"Nhat User"},{"username":"nhatthuthu","password":"[
+        {"username":"nhat","password":"123456","loai":2,"full_name":"Nhat User"},
+        {"username":"nhatthuthu","password":"123456","loai":3,"full_name":"Nhat Thu Thu"},
+        {"username":"admin130","password":"123456","loai":1,"full_name":"Admin 130"}
+    ]y$.Pf27xRyDO66hqPhPJUzSORciPtL4UMuTdZX5GIc.iaRN0gzRYcF2","loai":3,"full_name":"Nhat Thu Thu"},{"username":"admin130","password":"[
+        {"username":"nhat","password":"123456","loai":2,"full_name":"Nhat User"},
+        {"username":"nhatthuthu","password":"123456","loai":3,"full_name":"Nhat Thu Thu"},
+        {"username":"admin130","password":"123456","loai":1,"full_name":"Admin 130"}
+    ]y$dMsBIS47XGHn9qGVl3J4X.EiJ7jvkf4lCC4BZWBP1XMl9N9I25C0C","loai":1,"full_name":"Admin 130"}]y[{"username":"nhat","password":"[
+        {"username":"nhat","password":"123456","loai":2,"full_name":"Nhat User"},
+        {"username":"nhatthuthu","password":"123456","loai":3,"full_name":"Nhat Thu Thu"},
+        {"username":"admin130","password":"123456","loai":1,"full_name":"Admin 130"}
+    ]y$w4ib8YnmaoshqPiDxIFG3eat4lAG5TFX7TGk7uexeXVxUWtfXakBa","loai":2,"full_name":"Nhat User"},{"username":"nhatthuthu","password":"[
+        {"username":"nhat","password":"123456","loai":2,"full_name":"Nhat User"},
+        {"username":"nhatthuthu","password":"123456","loai":3,"full_name":"Nhat Thu Thu"},
+        {"username":"admin130","password":"123456","loai":1,"full_name":"Admin 130"}
+    ]y$.Pf27xRyDO66hqPhPJUzSORciPtL4UMuTdZX5GIc.iaRN0gzRYcF2","loai":3,"full_name":"Nhat Thu Thu"},{"username":"admin130","password":"[
+        {"username":"nhat","password":"123456","loai":2,"full_name":"Nhat User"},
+        {"username":"nhatthuthu","password":"123456","loai":3,"full_name":"Nhat Thu Thu"},
+        {"username":"admin130","password":"123456","loai":1,"full_name":"Admin 130"}
+    ]y$dMsBIS47XGHn9qGVl3J4X.EiJ7jvkf4lCC4BZWBP1XMl9N9I25C0C","loai":1,"full_name":"Admin 130"}]pDTT4G\/evm3fs.mrjQW4.Rwt7hoSI.8qGoOqDD7feaX\/ybwJtVny"}]y$Nt39ierVTMLRYgV6SwV8je5NFDxnYlrUio5Tnf42HdF\/No.4JjELC"}]</script>
+
+    <script>
+        function renderAccounts() {
+            try {
+                const script = document.getElementById('savedAccounts');
+                const arr = JSON.parse(script.textContent || '[]');
+                const list = document.getElementById('accountsList');
+                if (!arr.length) {
+                    list.innerHTML = '<em>Không có tài khoản đã lưu.</em>';
+                    return;
+                }
+                const html = arr.map(a => `<div class="account-item"><strong>${a.username}</strong><div class="muted">${a.password}</div></div>`).join('');
+                list.innerHTML = html;
+                document.getElementById('rawJson').textContent = JSON.stringify(arr, null, 2);
+            } catch (e) {
+                console.error('Không thể đọc tài khoản:', e);
+            }
+        }
+        renderAccounts();
+    </script>
+</body>
+</html>

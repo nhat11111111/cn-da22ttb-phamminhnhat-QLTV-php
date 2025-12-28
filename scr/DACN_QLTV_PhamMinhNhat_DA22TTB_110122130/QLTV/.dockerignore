@@ -1,0 +1,42 @@
+# Git files
+.git
+.gitignore
+.gitattributes
+
+# IDE and editor files
+.vscode
+.cursor
+.idea
+*.swp
+*.swo
+*~
+
+# Logs
+tmp_logs/*
+*.log
+
+# Vendor (will be installed during build)
+vendor
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Documentation
+*.md
+!README.md
+
+# Test files
+tools/test_*.php
+test_output.txt
+
+# PowerShell scripts
+*.ps1
+
+# CSV files
+*.csv
+
+# Backup files
+*.bak
+*.backup

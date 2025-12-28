@@ -1,0 +1,6 @@
+{
+  "php.linter": "off",
+  "php.validate.enable": false,
+  "intelephense.diagnostics.undefinedTypes": false,
+  "intelephense.format.enable": true
+}

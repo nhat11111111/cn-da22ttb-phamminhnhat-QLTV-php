@@ -1,0 +1,9 @@
+{
+    "require": {
+        "mongodb/mongodb": "^1.17"
+    },
+    "config": {
+        "disable-tls": true,
+        "platform-check": false
+    }
+}

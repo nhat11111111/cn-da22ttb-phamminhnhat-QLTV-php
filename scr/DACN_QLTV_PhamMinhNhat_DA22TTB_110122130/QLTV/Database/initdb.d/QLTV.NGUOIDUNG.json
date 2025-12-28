@@ -1,0 +1,110 @@
+[
+    {
+        "ID": "U001",
+        "username": "hoanglong",
+        "password": "123456",
+        "ho_ten": "Hoàng Long",
+        "dia_chi": "123 Nguyễn Huệ, Q1, TP.HCM",
+        "email": "hoanglong@example.com",
+        "loai": 1
+    },
+    {
+        "ID": "U002",
+        "username": "dangkhoa",
+        "password": "123456",
+        "ho_ten": "Đăng Khoa",
+        "dia_chi": "456 Trần Hưng Đạo, Q5, TP.HCM",
+        "email": "dangkhoa@example.com",
+        "loai": 2
+    },
+    {
+        "ID": "U003",
+        "username": "tranphuc",
+        "password": "123456",
+        "ho_ten": "Trần Phúc",
+        "dia_chi": "789 Lê Lợi, Q3, TP.HCM",
+        "email": "tranphuc@example.com",
+        "loai": 2
+    },
+    {
+        "ID": "U005",
+        "username": "luanhuu",
+        "password": "123456",
+        "ho_ten": "Hữu Luân",
+        "dia_chi": "càng long chau thanh tra vinh",
+        "email": "1235@gmail.com",
+        "loai": 2
+    },
+    {
+        "ID": "U006",
+        "username": "trieu",
+        "password": "123456",
+        "ho_ten": "trieu",
+        "dia_chi": "hai thu",
+        "email": "trieu@gmail.com",
+        "loai": 2
+    },
+    {
+        "ID": "UD2B2C2",
+        "username": "test_register_user2",
+        "password": "$2y$12$tDu4xVKQO8z53tUmbHx\/ReGeVSgOrsE3lxZW0NX1V4zxw9VWmgiyO",
+        "ho_ten": "Test Register 2",
+        "email": "test.register2@example.com",
+        "dia_chi": "Địa chỉ thử 2",
+        "loai": "2"
+    },
+    {
+        "ID": "U7AF1D2",
+        "username": "nhat1",
+        "password": "$2y$12$0Q9GHudrze5qKHuI45rx2OsWq2VoL2TQK9ymQf0VZRwuDhgJRRWV6",
+        "ho_ten": "nhat pham",
+        "email": "nhat1@gmail.com",
+        "dia_chi": "1",
+        "loai": "2"
+    },
+    {
+        "ID": "U6CAF3C",
+        "username": "nhat",
+        "password": "$2y$12$wUzbcJDQV79jPnS0\/zbJXeYWOTCq86i2bsNXj\/heDUNmo8uS9.hbS",
+        "ho_ten": "1",
+        "email": "1@gmail.com",
+        "dia_chi": "1",
+        "loai": "2"
+    },
+    {
+        "ID": "U45CB9F",
+        "username": "nhatthuthu",
+        "password": "123456",
+        "ho_ten": "Nhat Thu Thu",
+        "email": "nhatthuthu@example.com",
+        "dia_chi": "Trà Vinh",
+        "loai": 3
+    },
+    {
+        "ID": "U8D9E2F",
+        "username": "admin130",
+        "password": "123456",
+        "ho_ten": "Admin 130",
+        "email": "admin130@example.com",
+        "dia_chi": "Trà Vinh",
+        "loai": 1
+    },
+    {
+        "ID": "UD34E3E",
+        "username": "nhat2",
+        "password": "$2y$12$syzXIprlV72HV\/pVz0L.pOkPAqB2nq.Le6OmxNy6rNHI8PCCIsQDC",
+        "ho_ten": "nhat",
+        "email": "4@gmail.com",
+        "dia_chi": "n",
+        "loai": "2"
+    },
+    {
+        "ID": "UE21FDC",
+        "username": "hoanglong123",
+        "password": "$2y$12$LmrL\/5eStM7HDpp2OGhfWeY6F9SKcRAByD04ur7X\/TSBmbTT0VDwW",
+        "ho_ten": "long",
+        "email": "l@gmail.com",
+        "dia_chi": "12 hai thu",
+        "loai": "2"
+    }
+]

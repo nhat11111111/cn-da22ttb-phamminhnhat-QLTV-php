@@ -1,0 +1,140 @@
+[
+    {
+        "ID_muon_tra": "MT001",
+        "ID_phieu": "PM006",
+        "ID_nguoi_dung": "U001",
+        "ID_sach": "097",
+        "ten_sach": "Lập trình và Cuộc sống",
+        "ngay_muon": "2025-07-08",
+        "ngay_tra_du_kien": "2025-07-22",
+        "ngay_tra": "2025-07-08",
+        "trang_thai": "Đã trả",
+        "__v": 0
+    },
+    {
+        "ID_muon_tra": "MT002",
+        "ID_phieu": "PM005",
+        "ID_nguoi_dung": "U002",
+        "ID_sach": "121",
+        "ten_sach": "Code Complete 2",
+        "ngay_muon": "2025-07-07",
+        "ngay_tra": "2025-07-08",
+        "trang_thai": "Đã trả",
+        "__v": 0
+    },
+    {
+        "ID_muon_tra": "MT003",
+        "ID_phieu": "PM007",
+        "ID_nguoi_dung": "U002",
+        "ID_sach": "139",
+        "ten_sach": "The Pragmatic Programmer",
+        "ngay_muon": "2025-07-08",
+        "ngay_tra_du_kien": "2025-07-22",
+        "ngay_tra": "2025-07-08",
+        "trang_thai": "Đã trả",
+        "__v": 0
+    },
+    {
+        "ID_muon_tra": "MT004",
+        "ID_phieu": "PM008",
+        "ID_nguoi_dung": "U002",
+        "ID_sach": "097",
+        "ten_sach": "Lập trình và Cuộc sống",
+        "ngay_muon": "2025-07-08",
+        "ngay_tra_du_kien": "2025-07-22",
+        "ngay_tra": "2025-07-08",
+        "trang_thai": "Đã trả",
+        "__v": 0
+    },
+    {
+        "ID_muon_tra": "MT005",
+        "ID_phieu": "PM009",
+        "ID_nguoi_dung": "U002",
+        "ID_sach": "097",
+        "ten_sach": "Lập trình và Cuộc sống",
+        "ngay_muon": "2025-07-08",
+        "ngay_tra_du_kien": "2025-07-22",
+        "ngay_tra": "2025-07-08",
+        "trang_thai": "Đã trả",
+        "__v": 0
+    },
+    {
+        "ID_muon_tra": "MT006",
+        "ID_phieu": "PM010",
+        "ID_nguoi_dung": "U000",
+        "ID_sach": "121",
+        "ten_sach": "Code Complete 2",
+        "ngay_muon": "2025-11-29",
+        "ngay_tra_du_kien": "2025-12-13",
+        "trang_thai": "Đang mượn",
+        "__v": 0
+    },
+    {
+        "ID_muon_tra": "MT007",
+        "ID_phieu": "PM011",
+        "ID_nguoi_dung": "U000",
+        "ID_sach": "002",
+        "ten_sach": "Công nghệ 3S = 3S technology",
+        "ngay_muon": "2025-12-04",
+        "ngay_tra_du_kien": "2025-12-18",
+        "trang_thai": "Đang mượn",
+        "__v": 0
+    },
+    {
+        "ID_muon_tra": "MT008",
+        "ID_phieu": "PM012",
+        "ID_nguoi_dung": "U6CAF3C",
+        "ID_sach": "097",
+        "ten_sach": "Lập trình và Cuộc sống",
+        "ngay_muon": "2025-12-13",
+        "ngay_tra_du_kien": "2025-12-27",
+        "trang_thai": "Đã trả",
+        "__v": 0,
+        "ngay_tra": "2025-12-20"
+    },
+    {
+        "ID_muon_tra": "MT009",
+        "ID_phieu": "PM013",
+        "ID_nguoi_dung": "U6CAF3C",
+        "ID_sach": "201",
+        "ten_sach": "Súng, Vi trùng và Thép",
+        "ngay_muon": "2025-12-18",
+        "ngay_tra_du_kien": "2026-01-01",
+        "trang_thai": "Đang mượn",
+        "__v": 0
+    },
+    {
+        "ID_muon_tra": "MT010",
+        "ID_phieu": "PM014",
+        "ID_nguoi_dung": "U6CAF3C",
+        "ID_sach": "031",
+        "ten_sach": "Elon Musk: Tesla, SpaceX, and the Quest for a Fantastic Future",
+        "ngay_muon": "2025-12-19",
+        "ngay_tra_du_kien": "2026-01-02",
+        "trang_thai": "Đã trả",
+        "__v": 0,
+        "ngay_tra": "2025-12-19"
+    },
+    {
+        "ID_muon_tra": "MT011",
+        "ID_phieu": "PM015",
+        "ID_nguoi_dung": "U6CAF3C",
+        "ID_sach": "139",
+        "ten_sach": "The Pragmatic Programmer",
+        "ngay_muon": "2025-12-19",
+        "ngay_tra_du_kien": "2026-01-02",
+        "trang_thai": "Đang mượn",
+        "__v": 0
+    },
+    {
+        "ID_muon_tra": "MT012",
+        "ID_phieu": "PM016",
+        "ID_nguoi_dung": "U6CAF3C",
+        "ID_sach": "002",
+        "ten_sach": "Công nghệ 3S = 3S technology",
+        "ngay_muon": "2025-12-24",
+        "ngay_tra_du_kien": "2026-01-07",
+        "trang_thai": "Đang mượn",
+        "__v": 0
+    }
+]

@@ -1,0 +1,12 @@
+{
+  "intelephense.stubs": [
+    "mongodb"
+  ],
+  "intelephense.stubsDirectory": "./stubs",
+  "intelephense.diagnostics.undefinedTypes": true,
+  "intelephense.diagnostics.undefinedClasses": true,
+  "[php]": {
+    "editor.defaultFormatter": "bmewburn.vscode-intelephense-client",
+    "editor.formatOnSave": false
+  }
+}

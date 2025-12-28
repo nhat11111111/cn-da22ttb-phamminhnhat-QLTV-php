@@ -1,0 +1,16 @@
+[
+    {
+        "username": "user001",
+        "support_id": "Thiếu sách",
+        "reply": "da sua xong",
+        "created_at": "2025-12-05 00:23:07",
+        "replied_by": "admin130"
+    },
+    {
+        "username": "nhat",
+        "support_id": "Lỗi mượn",
+        "reply": "111",
+        "created_at": "2025-12-05 01:24:43",
+        "replied_by": "admin130"
+    }
+]

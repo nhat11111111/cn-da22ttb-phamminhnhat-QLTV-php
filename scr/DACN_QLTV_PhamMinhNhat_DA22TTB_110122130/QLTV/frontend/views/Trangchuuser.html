@@ -1,0 +1,1289 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trang chủ bạn đọc - Quản lý thư viện</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <style>
+        .user-shell { padding: 0 }
+        .borrow-table .btn-return { background:#ef4444; color:#fff; border:none; padding:6px 10px; border-radius:6px }
+        .borrow-table .status-returned { color:#059669; font-weight:700 }
+        .book-cover { width:100%; height:140px; object-fit:cover; border-radius:6px; margin-bottom:8px; display:block }
+        /* Thêm style cho phần Thể loại và footer */
+        section#categories-section h2 { font-size:32px; font-weight:800; color:#0f172a }
+        /* card title trong danh mục */
+        .category-card h3 { font-size:20px; margin:0 0 8px 0; font-weight:700 }
+        /* combobox to hơn */
+        #categorySelect { font-size:16px }
+        /* Footer mới giống mẫu (màu nền xanh đậm, chữ trắng) */
+        .site-footer { background:#083b7a; color:#fff; padding:28px 0; text-align:center; margin-top:40px }
+        .site-footer .footer-inner { max-width:1200px; margin:0 auto; }
+        .site-footer .footer-inner p { margin:6px 0 }
+        
+        /* Site Header */
+        .site-header {
+            background: #083b7a;
+            color: #fff;
+            padding: 12px 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .site-header .header-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+        .site-header .header-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 18px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+        .site-header .header-logo img {
+            height: 40px;
+            width: auto;
+        }
+        .site-header .header-search {
+            flex: 1;
+            max-width: 600px;
+            position: relative;
+        }
+        .site-header .header-search input {
+            width: 100%;
+            padding: 10px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            outline: none;
+        }
+        .search-type-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            margin-top: 4px;
+            display: none;
+            z-index: 100;
+        }
+        .search-type-dropdown.show { display: block; }
+        .search-type-option {
+            padding: 12px 16px;
+            cursor: pointer;
+            border-bottom: 1px solid #e5e7eb;
+            color: #374151;
+            font-size: 14px;
+        }
+        .search-type-option:last-child { border-bottom: none; }
+        .search-type-option:hover { background: #f3f4f6; }
+        .search-type-option.active { background: #dbeafe; color: #1e40af; font-weight: 600; }
+        .site-header .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .site-header .header-actions a {
+            color: #fff;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+        .site-header .header-actions a:hover {
+            opacity: 0.8;
+        }
+        
+        /* Adjust body for fixed header */
+        body { padding-top: 64px; }
+        .admin-layout { margin-top: 0; }
+    </style>
+</head>
+<body class="user-body">
+    <!-- Site Header -->
+    <header class="site-header">
+        <div class="header-container">
+            <div class="header-logo">
+                <img src="../css/logo.png" alt="Logo" onerror="this.style.display='none'" />
+                <span>TRUNG TÂM HỌC LIỆU - THƯ VIỆN</span>
+            </div>
+            <div class="header-search">
+                <input type="text" placeholder="Chọn loại tìm kiếm..." id="headerSearchInput" readonly />
+                <div class="search-type-dropdown" id="searchTypeDropdown">
+                    <div class="search-type-option" data-type="book">Tìm tên sách</div>
+                    <div class="search-type-option" data-type="author">Tìm tác giả</div>
+                </div>
+            </div>
+            <div class="header-actions">
+                <a href="#" id="headerNotificationBtn" title="Thông báo">
+                    <span style="font-size:20px">🔔</span>
+                    Thông báo
+                </a>
+                <a href="#" id="headerAccountBtn" title="Tài khoản">
+                    <span style="font-size:20px">👤</span>
+                    Tài khoản
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <div class="admin-layout">
+        <aside class="sidebar">
+            <div class="brand">
+                <img src="../css/logo.png" alt="logo" onerror="this.style.display='none'" />
+                <div>
+                    <h2>CELRI</h2>
+                    <div style="font-size:12px;color:#6b7280">Quản lý thư viện</div>
+                </div>
+            </div>
+
+            <nav class="menu">
+                <div class="menu-section">
+                    <div class="menu-item" data-action="home"><span class="icon">🏠</span> Trang chủ</div>
+                    <div class="menu-item" data-action="search"><span class="icon">🔍</span> Tìm kiếm</div>
+                    <div class="menu-item" data-action="categories"><span class="icon">📑</span> Thể loại</div>
+                    <div class="menu-item" data-action="borrow"><span class="icon">📥</span> Mượn sách</div>
+                </div>
+
+                <div style="border-top:1px solid #f1f5f9;padding-top:12px" class="menu-section">
+                    <div class="menu-item" data-action="support"><span class="icon">🆘</span> Hỗ trợ</div>
+                    <div class="menu-item" data-action="settings"><span class="icon">⚙️</span> Cài đặt</div>
+                    <div class="menu-item" data-action="notifications"><span class="icon">🔔</span> Thông báo</div>
+                    <div class="menu-item logout" id="sidebarLogout"><span class="icon">🚪</span> Đăng xuất</div>
+                </div>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <section class="page-header">
+                <div class="header-title">PHẦN MỀM QUẢN LÝ THƯ VIỆN</div>
+                <div class="header-meta">
+                    <div id="clock" class="header-clock">--:--:--</div>
+                </div>
+            </section>
+
+            <!-- Dashboard -->
+            <section id="dashboard-section">
+                <div class="hero-banner">
+                    <h1>CHÀO MỪNG BẠN ĐỌC</h1>
+                    <p>Hệ thống quản lý thư viện</p>
+                </div>
+
+                <section style="display:flex;gap:18px;margin:12px 0 20px;flex-wrap:wrap">
+                    <div class="card-surface home-card" style="flex:1;min-width:180px;text-align:center">
+                        <div style="font-size:28px;font-weight:700">Sách đang mượn</div>
+                        <div style="color:#6b7280">Theo dõi danh sách</div>
+                    </div>
+                    <div class="card-surface home-card" style="flex:1;min-width:180px;text-align:center">
+                        <div style="font-size:28px;font-weight:700">Tra cứu sách</div>
+                        <div style="color:#6b7280">Tìm và mượn sách mới</div>
+                    </div>
+                    <div class="card-surface home-card" style="flex:1;min-width:180px;text-align:center">
+                        <div style="font-size:28px;font-weight:700">Hỗ trợ</div>
+                        <div style="color:#6b7280">Liên hệ thủ thư</div>
+                    </div>
+                </section>
+            </section>
+
+            <!-- Tìm kiếm -->
+            <section id="search-section" style="display:none">
+                <h2>Tra cứu sách</h2>
+                <div id="bookGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:18px">
+                    <div style="background:#fff;border-radius:10px;padding:12px;text-align:center;border:1px solid #f1f5f9">
+                        <div style="height:140px;background:#f3f4f6;border-radius:6px;margin-bottom:8px;display:flex;align-items:center;justify-content:center">Ảnh</div>
+                        <div style="font-weight:700">The Industries of the Future</div>
+                    </div>
+                    <div style="background:#fff;border-radius:10px;padding:12px;text-align:center;border:1px solid #f1f5f9">
+                        <div style="height:140px;background:#f3f4f6;border-radius:6px;margin-bottom:8px;display:flex;align-items:center;justify-content:center">Ảnh</div>
+                        <div style="font-weight:700">Lập trình và Cuộc sống</div>
+                    </div>
+                    <div style="background:#fff;border-radius:10px;padding:12px;text-align:center;border:1px solid #f1f5f9">
+                        <div style="height:140px;background:#f3f4f6;border-radius:6px;margin-bottom:8px;display:flex;align-items:center;justify-content:center">Ảnh</div>
+                        <div style="font-weight:700">Elon Musk: Tesla, SpaceX, and the Quest</div>
+                    </div>
+                    <div style="background:#fff;border-radius:10px;padding:12px;text-align:center;border:1px solid #f1f5f9">
+                        <div style="height:140px;background:#f3f4f6;border-radius:6px;margin-bottom:8px;display:flex;align-items:center;justify-content:center">Ảnh</div>
+                        <div style="font-weight:700">The Pragmatic Programmer</div>
+                    </div>
+                    <div style="background:#fff;border-radius:10px;padding:12px;text-align:center;border:1px solid #f1f5f9">
+                        <div style="height:140px;background:#f3f4f6;border-radius:6px;margin-bottom:8px;display:flex;align-items:center;justify-content:center">Ảnh</div>
+                        <div style="font-weight:700">Code Complete 2</div>
+                    </div>
+                    <div style="background:#fff;border-radius:10px;padding:12px;text-align:center;border:1px solid #f1f5f9">
+                        <div style="height:140px;background:#f3f4f6;border-radius:6px;margin-bottom:8px;display:flex;align-items:center;justify-content:center">Ảnh</div>
+                        <div style="font-weight:700">Công nghệ 3S = 3S technology</div>
+                    </div>
+                    <div style="background:#fff;border-radius:10px;padding:12px;text-align:center;border:1px solid #f1f5f9">
+                        <div style="height:140px;background:#f3f4f6;border-radius:6px;margin-bottom:8px;display:flex;align-items:center;justify-content:center">Ảnh</div>
+                        <div style="font-weight:700">Sapiens: Lược sử loài người</div>
+                    </div>
+                    <div style="background:#fff;border-radius:10px;padding:12px;text-align:center;border:1px solid #f1f5f9">
+                        <div style="height:140px;background:#f3f4f6;border-radius:6px;margin-bottom:8px;display:flex;align-items:center;justify-content:center">Ảnh</div>
+                        <div style="font-weight:700">Clean Code</div>
+                    </div>
+                    <div style="background:#fff;border-radius:10px;padding:12px;text-align:center;border:1px solid #f1f5f9">
+                        <div style="height:140px;background:#f3f4f6;border-radius:6px;margin-bottom:8px;display:flex;align-items:center;justify-content:center">Ảnh</div>
+                        <div style="font-weight:700">Design Patterns</div>
+                    </div>
+                    <div style="background:#fff;border-radius:10px;padding:12px;text-align:center;border:1px solid #f1f5f9">
+                        <div style="height:140px;background:#f3f4f6;border-radius:6px;margin-bottom:8px;display:flex;align-items:center;justify-content:center">Ảnh</div>
+                        <div style="font-weight:700">Introduction to Algorithms</div>
+                    </div>
+                    <div style="background:#fff;border-radius:10px;padding:12px;text-align:center;border:1px solid #f1f5f9">
+                        <div style="height:140px;background:#f3f4f6;border-radius:6px;margin-bottom:8px;display:flex;align-items:center;justify-content:center">Ảnh</div>
+                        <div style="font-weight:700">Deep Work</div>
+                    </div>
+                    <div style="background:#fff;border-radius:10px;padding:12px;text-align:center;border:1px solid #f1f5f9">
+                        <div style="height:140px;background:#f3f4f6;border-radius:6px;margin-bottom:8px;display:flex;align-items:center;justify-content:center">Ảnh</div>
+                        <div style="font-weight:700">Atomic Habits</div>
+                    </div>
+                    <div style="background:#fff;border-radius:10px;padding:12px;text-align:center;border:1px solid #f1f5f9">
+                        <div style="height:140px;background:#f3f4f6;border-radius:6px;margin-bottom:8px;display:flex;align-items:center;justify-content:center">Ảnh</div>
+                        <div style="font-weight:700">Thinking, Fast and Slow</div>
+                    </div>
+                    <div style="background:#fff;border-radius:10px;padding:12px;text-align:center;border:1px solid #f1f5f9">
+                        <div style="height:140px;background:#f3f4f6;border-radius:6px;margin-bottom:8px;display:flex;align-items:center;justify-content:center">Ảnh</div>
+                        <div style="font-weight:700">The Lean Startup</div>
+                    </div>
+                    <div style="background:#fff;border-radius:10px;padding:12px;text-align:center;border:1px solid #f1f5f9">
+                        <div style="height:140px;background:#f3f4f6;border-radius:6px;margin-bottom:8px;display:flex;align-items:center;justify-content:center">Ảnh</div>
+                        <div style="font-weight:700">Hooked: How to Build Habit-Forming Products</div>
+                    </div>
+                    <div style="background:#fff;border-radius:10px;padding:12px;text-align:center;border:1px solid #f1f5f9">
+                        <div style="height:140px;background:#f3f4f6;border-radius:6px;margin-bottom:8px;display:flex;align-items:center;justify-content:center">Ảnh</div>
+                        <div style="font-weight:700">The Art of Computer Programming</div>
+                    </div>
+                    <div style="background:#fff;border-radius:10px;padding:12px;text-align:center;border:1px solid #f1f5f9">
+                        <div style="height:140px;background:#f3f4f6;border-radius:6px;margin-bottom:8px;display:flex;align-items:center;justify-content:center">Ảnh</div>
+                        <div style="font-weight:700">Refactoring: Improving the Design of Existing Code</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Mượn sách -->
+            <section id="borrow-section" style="display:none">
+                <h2>Sách bạn đã mượn</h2>
+                <div class="card-surface" style="padding:18px">
+                    <table class="table borrow-table" id="borrowedTable">
+                        <thead>
+                            <tr>
+                                <th>Mã sách</th>
+                                <th>Tên sách</th>
+                                <th>Tác giả</th>
+                                <th>Ngày mượn</th>
+                                <th>Ngày trả dự kiến</th>
+                                <th>Trạng thái</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr data-id="102">
+                                <td>102</td>
+                                <td>Khi hơi thở hóa thinh không</td>
+                                <td>Paul Kalanithi</td>
+                                <td>2025-10-03</td>
+                                <td class="due">2025-10-17</td>
+                                <td class="status"><span class="status-returned">Đã trả</span></td>
+                                <td><button class="btn-return" disabled>Đã trả</button></td>
+                            </tr>
+                            <tr data-id="097">
+                                <td>097</td>
+                                <td>Lập trình và Cuộc sống</td>
+                                <td>Jeff Atwood</td>
+                                <td>2025-11-14</td>
+                                <td class="due">2025-11-28</td>
+                                <td class="status"><span style="color:#dc2626;font-weight:700">Chờ xác nhận trả</span></td>
+                                <td><button class="btn-return">Trả sách</button></td>
+                            </tr>
+                            <tr data-id="031">
+                                <td>031</td>
+                                <td>Elon Musk: Tesla, SpaceX, and the Quest for a Fantastic Future</td>
+                                <td>Ashlee Vance</td>
+                                <td>2025-11-14</td>
+                                <td class="due">2025-11-28</td>
+                                <td class="status"><span style="color:#b91c1c;font-weight:700">Đang mượn (Quá hạn)</span></td>
+                                <td><button class="btn-return">Trả sách</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Thể loại (combobox) -->
+            <section id="categories-section" style="display:none">
+                <h2>Thể loại</h2>
+                <div class="card-surface" style="padding:18px;margin-bottom:12px">
+                    <label for="categorySelect" style="display:block;margin-bottom:8px">Chọn thể loại:</label>
+                    <select id="categorySelect" style="width:100%;padding:10px;border-radius:8px;border:1px solid #d1d5db">
+                        <option value="">-- Chọn thể loại --</option>
+                    </select>
+                </div>
+                <div id="categoryBooksGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:18px"></div>
+            </section>
+
+            <!-- Hỗ trợ -->
+            <section id="support-section" style="display:none">
+                <h2>Yêu cầu hỗ trợ</h2>
+                <div class="card-surface" style="padding:24px">
+                    <button class="primary-btn" id="openSupportFormBtn" style="background:#ef4444;margin-bottom:20px">
+                        <span style="font-size:18px;margin-right:8px">✉️</span>
+                        Gửi yêu cầu hỗ trợ
+                    </button>
+                    <div id="supportFormContainer" style="display:none;margin-top:20px">
+                        <form id="supportForm">
+                            <div style="margin-bottom:16px">
+                                <label style="display:block;margin-bottom:8px;font-weight:600;color:#374151">Tiêu đề lỗi <span style="color:#ef4444">*</span>:</label>
+                                <input type="text" id="supportTitle" required placeholder="VD: Lỗi không tải được sách" style="width:100%;padding:10px;border:1px solid #d1d5db;border-radius:8px" />
+                            </div>
+                            <div style="margin-bottom:16px">
+                                <label style="display:block;margin-bottom:8px;font-weight:600;color:#374151">Chi tiết lỗi <span style="color:#ef4444">*</span>:</label>
+                                <textarea id="supportDetails" required rows="5" placeholder="Mô tả chi tiết vấn đề bạn gặp phải..." style="width:100%;padding:10px;border:1px solid #d1d5db;border-radius:8px;resize:vertical"></textarea>
+                            </div>
+                            <div style="margin-bottom:16px">
+                                <label style="display:block;margin-bottom:8px;font-weight:600;color:#374151">Ảnh màn hình lỗi (nếu có):</label>
+                                <input type="file" id="supportScreenshot" accept="image/*" style="width:100%;padding:10px;border:1px solid #d1d5db;border-radius:8px" />
+                                <div id="screenshotPreview" style="margin-top:10px"></div>
+                            </div>
+                            <div style="display:flex;gap:12px;justify-content:flex-end">
+                                <button type="button" id="cancelSupportBtn" class="secondary">Hủy</button>
+                                <button type="submit" id="submitSupportBtn" class="primary-btn" style="background:#059669">Gửi yêu cầu</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Thông báo -->
+            <section id="notifications-section" style="display:none">
+                <h2>Thông báo</h2>
+                <div class="card-surface" style="padding:18px">
+                    <div id="notificationsList"></div>
+                </div>
+            </section>
+
+            <!-- Cài đặt -->
+            <section id="settings-section" style="display:none">
+                <h2>Cài đặt</h2>
+                <div class="settings-grid">
+                    <div class="settings-card">
+                        <div class="settings-card-header">
+                            <div>
+                                <h3>Thông tin tài khoản</h3>
+                                <p class="muted">Xem nhanh thông tin đăng nhập của bạn.</p>
+                            </div>
+                        </div>
+                        <div class="settings-fields" id="accountInfo">
+                            <div class="settings-row"><span>Tên hiển thị</span><strong id="infoFullName">--</strong></div>
+                            <div class="settings-row"><span>Tên đăng nhập</span><strong id="infoUsername">--</strong></div>
+                            <div class="settings-row"><span>Email</span><strong id="infoEmail">--</strong></div>
+                            <div class="settings-row"><span>Địa chỉ</span><strong id="infoAddress">--</strong></div>
+                        </div>
+                    </div>
+
+                    <div class="settings-card">
+                        <div class="settings-card-header">
+                            <div>
+                                <h3>Mật khẩu</h3>
+                                <p class="muted">Bấm đổi mật khẩu khi cần.</p>
+                            </div>
+                            <button type="button" class="ghost-btn" id="togglePasswordForm">Đổi mật khẩu</button>
+                        </div>
+                        <form id="changePasswordForm" class="password-form" style="display:none">
+                            <label for="oldPassword">Mật khẩu cũ</label>
+                            <input id="oldPassword" name="oldPassword" type="password" placeholder="Nhập mật khẩu hiện tại" required />
+                            <label for="newPassword">Mật khẩu mới</label>
+                            <input id="newPassword" name="newPassword" type="password" placeholder="Nhập mật khẩu mới" required />
+                            <label for="confirmPassword">Nhập lại mật khẩu mới</label>
+                            <input id="confirmPassword" name="confirmPassword" type="password" placeholder="Nhập lại mật khẩu mới" required />
+                            <button type="submit" class="primary-btn" id="submitPasswordBtn">Cập nhật mật khẩu</button>
+                        </form>
+                    </div>
+
+                    <div class="settings-card">
+                        <div class="settings-card-header">
+                            <div>
+                                <h3>Giao diện</h3>
+                                <p class="muted">Chọn độ sáng/tối và lưu lại.</p>
+                            </div>
+                        </div>
+                        <div class="theme-toggle" id="themeToggle">
+                            <label><input type="radio" name="themeMode" value="light" checked> Sáng</label>
+                            <label><input type="radio" name="themeMode" value="dark"> Tối</label>
+                        </div>
+                        <p class="muted" style="margin-top:8px">Chế độ sẽ được lưu cho lần đăng nhập tiếp theo.</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Footer (mới) -->
+    <footer class="site-footer" role="contentinfo">
+        <div class="footer-inner">
+            <p style="font-weight:800;letter-spacing:0.6px">TRUNG TÂM HỌC LIỆU VÀ HỖ TRỢ HỌC THUẬT, TRƯỜNG ĐẠI HỌC TRÀ VINH.</p>
+            <p>Địa chỉ: 126 Nguyễn Thiện Thành, phường Hòa Thuận, tỉnh Vĩnh Long.</p>
+            <p>Tel. (02943) 855 246 - 102. Email: celras@tvu.edu.vn</p>
+            <div style="margin-top:10px">
+                <a href="#" style="color:#fff;margin:0 8px;text-decoration:none">🔗</a>
+                <a href="#" style="color:#fff;margin:0 8px;text-decoration:none">✉️</a>
+                <a href="#" style="color:#fff;margin:0 8px;text-decoration:none">📡</a>
+                <a href="#" style="color:#fff;margin:0 8px;text-decoration:none">▶️</a>
+            </div>
+        </div>
+    </footer>
+
+    <div id="toast" class="toast">Thông báo</div>
+
+    <!-- Modal xác nhận đăng xuất -->
+    <div id="logoutConfirm" class="logout-confirm" role="dialog" aria-modal="true" aria-labelledby="logoutTitle" aria-hidden="true">
+        <div class="logout-box">
+            <h3 id="logoutTitle">Bạn chắc chắn đăng xuất?</h3>
+            <p>Phiên đăng nhập hiện tại sẽ bị kết thúc.</p>
+            <div class="logout-actions">
+                <button type="button" class="secondary" id="cancelLogoutBtn">Hủy</button>
+                <button type="button" id="confirmLogoutBtn">Đăng xuất</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal chi tiết sách -->
+    <div id="bookDetailModal" class="logout-confirm" role="dialog" aria-modal="true" aria-labelledby="bookDetailTitle" aria-hidden="true">
+        <div class="logout-box">
+            <h3 id="bookDetailTitle">Chi tiết sách</h3>
+            <div id="bookDetailBody" style="margin:12px 0"></div>
+            <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
+                <button id="modalCancelBtn" class="secondary">Hủy</button>
+                <button id="modalBorrowBtn" class="primary-btn">Mượn sách</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Replace placeholder boxes with images from /images/<sanitized-title>.(jpg|png)
+        (function(){
+            function sanitizeName(s){
+                return String(s||'').toLowerCase().trim()
+                    .normalize('NFKD')
+                    .replace(/\p{Diacritic}/gu,'')
+                    .replace(/[^a-z0-9]+/gi,'-')
+                    .replace(/^-+|-+$/g,'');
+            }
+
+            async function tryImage(img, title){
+                // Try several candidate filename forms. Prefer .webp first.
+                const exts = ['.webp','.jpg','.png','.jpeg','.gif'];
+                const candidates = [];
+                const raw = String(title || '').trim();
+                if (!raw) return false;
+                // raw exact (URL-encoded)
+                candidates.push(encodeURIComponent(raw));
+                // raw with spaces replaced by hyphen
+                candidates.push(encodeURIComponent(raw.replace(/\s+/g,'-')));
+                // sanitized (no diacritics, only ascii alnum and hyphen)
+                const sanitized = String(raw).toLowerCase().normalize('NFKD').replace(/\p{Diacritic}/gu,'').replace(/[^a-z0-9]+/gi,'-').replace(/^-+|-+$/g,'');
+                candidates.push(sanitized);
+                // lowercase raw
+                candidates.push(encodeURIComponent(raw.toLowerCase()));
+
+                for (const c of candidates) {
+                    for (const e of exts) {
+                        const url = '/images/' + c + e;
+                        // preload test
+                        try {
+                            await new Promise((res, rej) => { img.onload = () => res(true); img.onerror = () => rej(false); img.src = url; });
+                            console.debug('Found image for', title, '->', url);
+                            return true;
+                        } catch (err) {
+                            // try next
+                        }
+                    }
+                }
+                return false;
+            }
+
+            function attachGridImages(gridId){
+                const grid = document.getElementById(gridId);
+                if(!grid) return;
+                Array.from(grid.children).forEach(card=>{
+                    const children = Array.from(card.children);
+                    const titleEl = children.find(c=>/font-weight:700/.test(c.getAttribute('style')||'')) || children[1] || null;
+                    const placeholder = children[0] || null;
+                    const title = titleEl ? titleEl.textContent.trim() : '';
+                    if(!title) return;
+                    const base = sanitizeName(title);
+                    const img = document.createElement('img');
+                    img.className = 'book-cover';
+                    img.alt = title;
+                    // try load
+                    tryImage(img, base).then(found => {
+                        if(found){ if(placeholder) placeholder.style.display='none'; card.insertBefore(img, card.firstChild); }
+                    });
+                });
+            }
+
+            document.addEventListener('DOMContentLoaded', ()=>{ attachGridImages('bookGrid'); });
+        })();
+        // Đồng hồ
+        function startClock() {
+            const el = document.getElementById('clock');
+            setInterval(() => {
+                const now = new Date();
+                el.textContent = now.toLocaleString();
+            }, 1000);
+        }
+        startClock();
+
+        // Toast
+        const toast = document.getElementById('toast');
+        function showToast(msg = 'Chức năng đang được phát triển'){
+            toast.textContent = msg;
+            toast.style.display = 'block';
+            toast.style.opacity = '1';
+            setTimeout(()=>{ toast.style.opacity = '0'; setTimeout(()=> toast.style.display='none',300); }, 1400);
+        }
+
+        // Sections
+        const sections = {
+            dashboard: document.getElementById('dashboard-section'),
+            search: document.getElementById('search-section'),
+            categories: document.getElementById('categories-section'),
+            borrow: document.getElementById('borrow-section'),
+            support: document.getElementById('support-section'),
+            notifications: document.getElementById('notifications-section'),
+            settings: document.getElementById('settings-section')
+        };
+
+        const THEME_KEY = 'qltv-theme';
+
+        function applyTheme(mode){
+            const chosen = mode === 'dark' ? 'dark' : 'light';
+            document.body.classList.toggle('theme-dark', chosen === 'dark');
+            localStorage.setItem(THEME_KEY, chosen);
+            document.querySelectorAll('input[name="themeMode"]').forEach(r => {
+                r.checked = r.value === chosen;
+            });
+        }
+
+        function initThemeToggle(){
+            const saved = localStorage.getItem(THEME_KEY) || 'light';
+            applyTheme(saved);
+            const radios = document.querySelectorAll('#themeToggle input[name="themeMode"]');
+            radios.forEach(r => {
+                r.addEventListener('change', (e) => {
+                    applyTheme(e.target.value);
+                    showToast('Đã lưu cài đặt giao diện');
+                });
+            });
+        }
+
+        async function loadAccountInfo(){
+            try {
+                const res = await fetch('/api/check-session.php');
+                const data = await res.json();
+                if (!data.loggedIn) {
+                    window.location.href = 'Dangnhap.html';
+                    return;
+                }
+                const user = data.user || {};
+                const setText = (id, value) => {
+                    const el = document.getElementById(id);
+                    if (el) el.textContent = value || '--';
+                };
+                setText('infoFullName', user.full_name || user.ho_ten || '--');
+                setText('infoUsername', user.username || '--');
+                setText('infoEmail', user.email || '--');
+                setText('infoAddress', user.address || '--');
+                setText('infoRole', user.role ? ('Loại ' + user.role) : '--');
+            } catch (e) {
+                showToast('Không tải được thông tin tài khoản');
+            }
+        }
+
+        function showSection(name){
+            Object.keys(sections).forEach(k => {
+                if (sections[k]) sections[k].style.display = (k === name) ? '' : 'none';
+            });
+        }
+
+        // Header search functionality
+        let searchType = null;
+        const headerSearchInput = document.getElementById('headerSearchInput');
+        const searchTypeDropdown = document.getElementById('searchTypeDropdown');
+        
+        headerSearchInput.addEventListener('click', (e) => {
+            e.stopPropagation();
+            searchTypeDropdown.classList.toggle('show');
+        });
+
+        document.querySelectorAll('.search-type-option').forEach(option => {
+            option.addEventListener('click', (e) => {
+                e.stopPropagation();
+                searchType = option.getAttribute('data-type');
+                document.querySelectorAll('.search-type-option').forEach(opt => opt.classList.remove('active'));
+                option.classList.add('active');
+                
+                headerSearchInput.readOnly = false;
+                headerSearchInput.placeholder = searchType === 'book' ? 'Nhập tên sách...' : 'Nhập tên tác giả...';
+                headerSearchInput.value = '';
+                searchTypeDropdown.classList.remove('show');
+                headerSearchInput.focus();
+            });
+        });
+
+        headerSearchInput.addEventListener('keyup', async (e) => {
+            if (!searchType || !headerSearchInput.value.trim()) return;
+            if (e.key === 'Enter') {
+                const query = headerSearchInput.value.trim().toLowerCase();
+                showSection('search');
+                await loadAllBooks();
+                
+                // Get books data from API
+                try {
+                    const res = await fetch('/api/sach.php');
+                    const data = await res.json();
+                    
+                    if (data.success && Array.isArray(data.data)) {
+                        const filteredBooks = data.data.filter(book => {
+                            if (searchType === 'book') {
+                                const title = (book.ten_sach || book.ten || book.TEN || '').toLowerCase();
+                                return title.includes(query);
+                            } else { // author
+                                const author = (book.tac_gia || book.TAC_GIA || '').toLowerCase();
+                                // Normalize for better matching (remove diacritics if needed)
+                                return author.includes(query);
+                            }
+                        });
+                        
+                        renderBooks(filteredBooks);
+                        showToast(`Tìm ${searchType === 'book' ? 'sách' : 'tác giả'}: "${headerSearchInput.value}" - ${filteredBooks.length} kết quả`);
+                    }
+                } catch (error) {
+                    console.error('Lỗi tìm kiếm:', error);
+                    showToast('Lỗi tìm kiếm');
+                }
+            }
+        });
+
+        document.addEventListener('click', () => {
+            searchTypeDropdown.classList.remove('show');
+        });
+
+        // Header buttons
+        document.getElementById('headerNotificationBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            showSection('notifications');
+            loadNotifications();
+        });
+
+        document.getElementById('headerAccountBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            showSection('settings');
+            loadAccountInfo();
+        });
+
+        // Support form functionality
+        const openSupportFormBtn = document.getElementById('openSupportFormBtn');
+        const supportFormContainer = document.getElementById('supportFormContainer');
+        const cancelSupportBtn = document.getElementById('cancelSupportBtn');
+        const supportForm = document.getElementById('supportForm');
+        const screenshotInput = document.getElementById('supportScreenshot');
+        const screenshotPreview = document.getElementById('screenshotPreview');
+
+        openSupportFormBtn.addEventListener('click', () => {
+            supportFormContainer.style.display = 'block';
+            openSupportFormBtn.style.display = 'none';
+        });
+
+        cancelSupportBtn.addEventListener('click', () => {
+            supportForm.reset();
+            supportFormContainer.style.display = 'none';
+            openSupportFormBtn.style.display = 'block';
+            screenshotPreview.innerHTML = '';
+        });
+
+        screenshotInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    screenshotPreview.innerHTML = `<img src="${event.target.result}" style="max-width:300px;max-height:200px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.1)" />`;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        supportForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const title = document.getElementById('supportTitle').value.trim();
+            const details = document.getElementById('supportDetails').value.trim();
+            const screenshot = screenshotInput.files[0];
+
+            if (!title || !details) {
+                showToast('Vui lòng điền đầy đủ thông tin');
+                return;
+            }
+
+            const submitBtn = document.getElementById('submitSupportBtn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Đang gửi...';
+
+            try {
+                const formData = new FormData();
+                formData.append('title', title);
+                formData.append('details', details);
+                if (screenshot) {
+                    formData.append('screenshot', screenshot);
+                }
+
+                const response = await fetch('/api/support.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    showToast('Đã gửi yêu cầu hỗ trợ thành công');
+                    supportForm.reset();
+                    supportFormContainer.style.display = 'none';
+                    openSupportFormBtn.style.display = 'block';
+                    screenshotPreview.innerHTML = '';
+                } else {
+                    showToast('Lỗi: ' + (result.message || 'Không thể gửi yêu cầu'));
+                }
+            } catch (error) {
+                console.error('Lỗi gửi hỗ trợ:', error);
+                showToast('Lỗi kết nối máy chủ');
+            }
+
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Gửi yêu cầu';
+        });
+
+        // Menu click
+        document.querySelectorAll('.menu-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                const action = item.getAttribute('data-action');
+                if (action === 'logout' || item.id === 'sidebarLogout') {
+                    document.getElementById('logoutConfirm').classList.add('show');
+                    document.getElementById('logoutConfirm').setAttribute('aria-hidden','false');
+                    return;
+                }
+
+                if (action === 'home') { showSection('dashboard'); return; }
+                if (action === 'search') { 
+                    showSection('search'); 
+                    loadAllBooks();
+                    return; 
+                }
+                if (action === 'categories') { 
+                    showSection('categories'); 
+                    loadCategories();
+                    return; 
+                }
+                if (action === 'borrow') { showSection('borrow'); return; }
+                if (action === 'support') { showSection('support'); return; }
+                if (action === 'notifications') { 
+                    showSection('notifications'); 
+                    loadNotifications();
+                    return; 
+                }
+                if (action === 'settings') {
+                    showSection('settings');
+                    loadAccountInfo();
+                    return;
+                }
+
+                showToast('Chức năng đang được phát triển');
+            });
+        });
+
+        initThemeToggle();
+
+        const togglePasswordFormBtn = document.getElementById('togglePasswordForm');
+        const passwordForm = document.getElementById('changePasswordForm');
+        const submitPasswordBtn = document.getElementById('submitPasswordBtn');
+
+        if (togglePasswordFormBtn && passwordForm) {
+            togglePasswordFormBtn.addEventListener('click', () => {
+                const isHidden = passwordForm.style.display === 'none' || passwordForm.style.display === '';
+                passwordForm.style.display = isHidden ? 'block' : 'none';
+            });
+        }
+
+        if (passwordForm) {
+            passwordForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const oldPass = document.getElementById('oldPassword').value.trim();
+                const newPass = document.getElementById('newPassword').value.trim();
+                const confirmPass = document.getElementById('confirmPassword').value.trim();
+
+                if (!oldPass || !newPass || !confirmPass) {
+                    showToast('Vui lòng nhập đầy đủ thông tin');
+                    return;
+                }
+                if (newPass !== confirmPass) {
+                    showToast('Mật khẩu mới không khớp');
+                    return;
+                }
+                if (newPass.length < 6) {
+                    showToast('Mật khẩu mới tối thiểu 6 ký tự');
+                    return;
+                }
+
+                submitPasswordBtn.disabled = true;
+                submitPasswordBtn.textContent = 'Đang cập nhật...';
+                try {
+                    const res = await fetch('/api/change-password.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            old_password: oldPass,
+                            new_password: newPass,
+                            confirm_password: confirmPass
+                        })
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        // Lưu mật khẩu mới vào localStorage (offline mode)
+                        const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
+                        if (currentUser.username) {
+                            const offlineUsers = JSON.parse(localStorage.getItem('offlineUsers') || '{}');
+                            offlineUsers[currentUser.username] = newPass;
+                            localStorage.setItem('offlineUsers', JSON.stringify(offlineUsers));
+                        }
+                        showToast('Đổi mật khẩu thành công');
+                        passwordForm.reset();
+                        passwordForm.style.display = 'none';
+                    } else {
+                        showToast(data.message || 'Không thể đổi mật khẩu');
+                    }
+                } catch (err) {
+                    showToast('Lỗi kết nối máy chủ');
+                }
+                submitPasswordBtn.disabled = false;
+                submitPasswordBtn.textContent = 'Cập nhật mật khẩu';
+            });
+        }
+
+        // Tìm kiếm sách - Xây lại từ đầu
+        let searchTimeout = null;
+        const searchInput = document.getElementById('globalSearchInput');
+        
+        // Hàm tìm kiếm sách
+        async function searchBooks(searchText) {
+            try {
+                const query = searchText ? searchText.trim() : '';
+                
+                // Nếu không có query, load tất cả sách
+                if (!query) {
+                    await loadAllBooks();
+                    return;
+                }
+                
+                // Gọi API tìm kiếm
+                const url = `/api/search.php?q=${encodeURIComponent(query)}`;
+                const response = await fetch(url);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                
+                const responseText = await response.text();
+                
+                if (!responseText) {
+                    throw new Error('Không nhận được dữ liệu');
+                }
+                
+                // Parse JSON
+                const result = JSON.parse(responseText);
+                
+                // Kiểm tra kết quả
+                if (result.success === true && Array.isArray(result.data)) {
+                    renderBooks(result.data);
+                    if (result.data.length === 0) {
+                        showToast('Không tìm thấy sách nào');
+                    }
+                } else {
+                    renderBooks([]);
+                    showToast(result.message || 'Không tìm thấy sách nào');
+                }
+            } catch (error) {
+                console.error('Lỗi tìm kiếm:', error);
+                showToast('Lỗi: ' + (error.message || 'Không thể tìm kiếm'));
+                renderBooks([]);
+            }
+        }
+        
+        // Xử lý khi người dùng nhập vào ô tìm kiếm
+        if (searchInput) {
+            // Tìm kiếm khi nhập (debounce 300ms)
+            searchInput.addEventListener('input', function(e) {
+                const query = e.target.value.trim();
+                
+                // Xóa timeout cũ
+                if (searchTimeout) {
+                    clearTimeout(searchTimeout);
+                }
+                
+                // Tạo timeout mới
+                searchTimeout = setTimeout(() => {
+                    searchBooks(query);
+                }, 300);
+            });
+            
+            // Tìm kiếm khi nhấn Enter
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (searchTimeout) {
+                        clearTimeout(searchTimeout);
+                    }
+                    const query = e.target.value.trim();
+                    searchBooks(query);
+                }
+            });
+        }
+
+        async function loadAllBooks() {
+            try {
+                const res = await fetch('/api/sach.php');
+                
+                // Đọc response text trước
+                const text = await res.text();
+                
+                // Kiểm tra nếu response không phải JSON
+                if (!text.trim().startsWith('{') && !text.trim().startsWith('[')) {
+                    console.error('Non-JSON response:', text.substring(0, 200));
+                    throw new Error('API trả về dữ liệu không hợp lệ');
+                }
+                
+                // Parse JSON
+                let data;
+                try {
+                    data = JSON.parse(text);
+                } catch (parseError) {
+                    console.error('JSON parse error:', parseError);
+                    console.error('Response text:', text.substring(0, 500));
+                    throw new Error('Không thể phân tích dữ liệu từ server');
+                }
+                
+                if (!res.ok) {
+                    throw new Error(`HTTP error! status: ${res.status}`);
+                }
+                
+                if (data.success && Array.isArray(data.data)) {
+                    renderBooks(data.data);
+                } else {
+                    renderBooks([]);
+                    showToast(data.message || 'Không có dữ liệu sách');
+                }
+            } catch (e) {
+                console.error('Load books error:', e);
+                showToast('Lỗi tải sách: ' + (e.message || 'Lỗi không xác định'));
+                renderBooks([]);
+            }
+        }
+
+        // Hàm tạo URL ảnh tự động cho sách chưa có ảnh
+        function getBookImageUrl(book) {
+            if (book.anh_bia && book.anh_bia.trim() !== '') {
+                return book.anh_bia;
+            }
+            // Tạo URL ảnh placeholder dựa trên ID sách
+            const bookId = book.ID || book.id || 'default';
+            return `https://via.placeholder.com/200x280/4F46E5/FFFFFF?text=${encodeURIComponent(book.ten_sach || 'Book')}`;
+        }
+
+        function renderBooks(books) {
+            const grid = document.getElementById('bookGrid');
+            if (!grid) return;
+            
+            if (!books || books.length === 0) {
+                grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:#6b7280">Không có sách nào</div>';
+                return;
+            }
+            
+            grid.innerHTML = books.map(book => {
+                const imageUrl = getBookImageUrl(book);
+                const bookId = book.ID || book.id || book.ID_sach || '';
+                return `
+                <div style="background:#fff;border-radius:10px;padding:12px;text-align:center;border:1px solid #f1f5f9;cursor:pointer" data-book-id="${bookId}">
+                    <div style="height:140px;background:#f3f4f6;border-radius:6px;margin-bottom:8px;display:flex;align-items:center;justify-content:center;overflow:hidden">
+                        <img src="${imageUrl}" style="max-width:100%;max-height:100%;object-fit:cover;border-radius:6px" onerror="this.style.display='none';this.parentElement.innerHTML='<div style=\\'color:#6b7280\\'>Ảnh</div>'" />
+                    </div>
+                    <div style="font-weight:700">${book.ten_sach || book.ten || book.TEN || ''}</div>
+                </div>
+            `;
+            }).join('');
+            
+            // Thêm event listener cho click
+            grid.querySelectorAll('[data-book-id]').forEach(card => {
+                card.addEventListener('click', () => {
+                    const bookId = card.getAttribute('data-book-id');
+                    const book = books.find(b => (b.ID && String(b.ID) === String(bookId)) || (b.id && String(b.id) === String(bookId)) || (b.ID_sach && String(b.ID_sach) === String(bookId)));
+                    if (book) openBookModal(book);
+                });
+            });
+        }
+
+            async function loadCategories() {
+            try {
+                const res = await fetch('/api/categories.php');
+                const data = await res.json();
+                    if (data.success) {
+                        const select = document.getElementById('categorySelect');
+                        if (select) {
+                            select.innerHTML = '<option value="">-- Chọn thể loại --</option>' + (data.data || []).map(cat => `<option value="${cat.ten_danh_muc}">${cat.ten_danh_muc}</option>`).join('');
+                            select.addEventListener('change', (e) => {
+                                const v = e.target.value;
+                                if (v) loadBooksByCategory(v);
+                            });
+                            // build category->price prefix mapping for price codes
+                            window.categoryPriceMap = window.categoryPriceMap || {};
+                            const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+                            (data.data || []).forEach((cat, idx) => {
+                                const prefix = letters[idx] ? (letters[idx] + '1') : ('X' + (idx+1));
+                                window.categoryPriceMap[cat.ten_danh_muc] = prefix;
+                            });
+                        }
+                }
+            } catch (e) {
+                showToast('Lỗi tải danh mục');
+            }
+        }
+
+        async function loadBooksByCategory(category) {
+            try {
+                const res = await fetch(`/api/search.php?category=${encodeURIComponent(category)}`);
+                const data = await res.json();
+                if (data.success) {
+                    const grid = document.getElementById('categoryBooksGrid');
+                    if (grid) {
+                        grid.innerHTML = data.data.map(book => `
+                            <div style="background:#fff;border-radius:10px;padding:12px;text-align:center;border:1px solid #f1f5f9;cursor:pointer" data-book-id="${book.ID}">
+                                <div style="height:140px;background:#f3f4f6;border-radius:6px;margin-bottom:8px;display:flex;align-items:center;justify-content:center;overflow:hidden">
+                                    <img src="${getBookImageUrl(book)}" style="max-width:100%;max-height:100%;object-fit:cover;border-radius:6px" onerror="this.style.display='none';this.parentElement.innerHTML='<div style=\\'color:#6b7280\\'>Ảnh</div>'" />
+                                </div>
+                                <div style="font-weight:700">${book.ten_sach || ''}</div>
+                            </div>
+                        `).join('');
+                        
+                        grid.querySelectorAll('[data-book-id]').forEach(card => {
+                            card.addEventListener('click', () => {
+                                const bookId = card.getAttribute('data-book-id');
+                                const book = data.data.find(b => b.ID === bookId);
+                                if (book) openBookModal(book);
+                            });
+                        });
+                    }
+                }
+            } catch (e) {
+                showToast('Lỗi tải sách theo thể loại');
+            }
+        }
+
+        async function loadNotifications() {
+            try {
+                const res = await fetch('/api/notifications.php');
+                const data = await res.json();
+                if (data.success) {
+                    const list = document.getElementById('notificationsList');
+                    if (list) {
+                        if (data.data.length === 0) {
+                            list.innerHTML = '<p style="color:#6b7280">Chưa có thông báo nào</p>';
+                        } else {
+                            list.innerHTML = data.data.map(notif => `
+                                <div style="border-bottom:1px solid #e5e7eb;padding:12px 0">
+                                    <p style="margin:0 0 8px 0"><strong>Phản hồi từ: ${notif.replied_by || 'Admin'}</strong></p>
+                                    <p style="margin:0 0 4px 0;color:#374151">${notif.reply || ''}</p>
+                                    <p style="margin:0;color:#6b7280;font-size:12px">${notif.created_at || ''}</p>
+                                </div>
+                            `).join('');
+                        }
+                    }
+                }
+            } catch (e) {
+                showToast('Lỗi tải thông báo');
+            }
+        }
+
+        // Hàm format giá sách (rút gọn nếu quá dài)
+        function formatPrice(priceStr) {
+            if (!priceStr || priceStr.trim() === '') return '-';
+            if (priceStr === 'Có sẵn' || priceStr === 'Đang mượn' || priceStr === 'Hết sách') return priceStr;
+            
+            if (priceStr.includes('Giá:')) {
+                const parts = priceStr.split('Giá:');
+                if (parts.length > 1) {
+                    const priceValue = parts[1].trim();
+                    const match = priceValue.match(/^([\d.]+)/);
+                    if (match) {
+                        return 'Giá: ' + match[1];
+                    }
+                    return 'Giá: ' + priceValue.substring(0, 20);
+                }
+            }
+            return priceStr.length > 25 ? priceStr.substring(0, 22) + '...' : priceStr;
+        }
+
+        function openBookModal(book) {
+            const modal = document.getElementById('bookDetailModal');
+            const modalTitle = document.getElementById('bookDetailTitle');
+            const modalBody = document.getElementById('bookDetailBody');
+            if (!modal || !modalTitle || !modalBody) return;
+            
+            modalTitle.textContent = book.ten_sach || 'Sách';
+            const imageUrl = getBookImageUrl(book);
+            const formattedPrice = formatPrice(book.vi_tri || '');
+            const cat = book.danh_muc || book.category || '';
+            const prefix = (window.categoryPriceMap && window.categoryPriceMap[cat]) ? window.categoryPriceMap[cat] : 'X1';
+            const priceCode = prefix + '.' + (book.ID || book.id || '-');
+            modalBody.innerHTML = `
+                <div style="text-align:center;margin-bottom:20px">
+                    <img src="${imageUrl}" style="max-width:200px;max-height:280px;object-fit:cover;border-radius:8px;box-shadow:0 4px 6px rgba(0,0,0,0.1)" onerror="this.style.display='none';this.parentElement.innerHTML='<div style=\\'padding:40px;color:#6b7280\\'>Không có ảnh</div>'" />
+                </div>
+                <p><strong>Mã sách:</strong> ${book.ID || '-'}</p>
+                <p><strong>Mã giá sách:</strong> ${priceCode}</p>
+                <p><strong>Tác giả:</strong> ${book.tac_gia || '-'}</p>
+                <p><strong>Năm XB:</strong> ${book.nam_xuat_ban || '-'}</p>
+                <p><strong>Giá sách:</strong> ${formattedPrice}</p>
+                <p><strong>Số lượng còn:</strong> <span id="modalAvailable">${book.so_luong ?? '-'}</span></p>
+            `;
+            modal.classList.add('show');
+            modal.setAttribute('aria-hidden','false');
+            
+            // Lưu book hiện tại để mượn
+            window.currentBook = book;
+        }
+
+        // Logout
+        const cancelLogoutBtn = document.getElementById('cancelLogoutBtn');
+        const confirmLogoutBtn = document.getElementById('confirmLogoutBtn');
+        const logoutConfirm = document.getElementById('logoutConfirm');
+
+        cancelLogoutBtn.addEventListener('click', ()=>{
+            logoutConfirm.classList.remove('show');
+            logoutConfirm.setAttribute('aria-hidden','true');
+        });
+
+            confirmLogoutBtn.addEventListener('click', async ()=>{
+            try{
+                await fetch('/api/logout.php', { method: 'POST' });
+            } catch(e){}
+            window.location.href = 'Dangnhap.html';
+        });
+
+        // Return book
+        async function returnBook(id_sach) {
+            try {
+                const res = await fetch('/api/return_muon.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id_sach })
+                });
+                const data = await res.json();
+                return data;
+            } catch (e) {
+                return { success: false, message: e.message };
+            }
+        }
+
+        document.getElementById('borrowedTable').addEventListener('click', async (e)=>{
+            const btn = e.target.closest('.btn-return');
+            if (!btn || btn.disabled) return;
+            const row = btn.closest('tr');
+            const bookId = row.getAttribute('data-id');
+            if (!confirm('Xác nhận trả sách mã ' + bookId + ' ?')) return;
+
+            btn.disabled = true; btn.textContent = 'Đang xử lý...';
+            const result = await returnBook(bookId);
+            if (result && result.success) {
+                row.querySelector('.status').innerHTML = '<span class="status-returned">Đã trả</span>';
+                btn.textContent = 'Đã trả'; btn.style.opacity = 0.7;
+                showToast('Đã trả sách ' + bookId);
+            } else {
+                btn.disabled = false; btn.textContent = 'Trả sách';
+                showToast('Lỗi: ' + (result.message || 'Không thể trả sách'));
+            }
+        });
+
+        // Modal & Borrow logic
+        const modal = document.getElementById('bookDetailModal');
+        const borrowBtn = document.getElementById('modalBorrowBtn');
+        const cancelBtn = document.getElementById('modalCancelBtn');
+
+        function closeModal(){ 
+            if (modal) {
+                modal.classList.remove('show'); 
+                modal.setAttribute('aria-hidden','true');
+            }
+        }
+
+        if (cancelBtn) cancelBtn.addEventListener('click', closeModal);
+
+        if (borrowBtn) {
+            borrowBtn.addEventListener('click', async ()=>{
+                if (!window.currentBook) return;
+                borrowBtn.disabled = true; 
+                borrowBtn.textContent = 'Đang xử lý...';
+                try{
+                    const res = await fetch('/api/borrow.php', {
+                        method: 'POST', 
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ id_sach: window.currentBook.ID })
+                    });
+                    const j = await res.json();
+                    if (j.success){
+                        const avail = document.getElementById('modalAvailable');
+                        if (avail && j.data) avail.textContent = j.data.so_luong_con_lai;
+
+                        const tbody = document.querySelector('#borrowedTable tbody');
+                        if (tbody){
+                            const newRow = document.createElement('tr');
+                            newRow.setAttribute('data-id', window.currentBook.ID);
+                            const today = new Date().toISOString().slice(0,10);
+                            const due = new Date(Date.now() + 14*24*60*60*1000).toISOString().slice(0,10);
+                            newRow.innerHTML = `<td>${window.currentBook.ID}</td><td>${window.currentBook.ten_sach}</td><td>${window.currentBook.tac_gia}</td><td>${today}</td><td class="due">${due}</td><td class="status"><span style="color:#b91c1c;font-weight:700">Đang mượn</span></td><td><button class="btn-return">Trả sách</button></td>`;
+                            tbody.appendChild(newRow);
+                        }
+
+                        showToast('Mượn sách thành công');
+                        closeModal();
+                    } else {
+                        showToast('Lỗi: ' + (j.message || 'Không thể mượn sách'));
+                    }
+                }catch(e){
+                    showToast('Lỗi kết nối');
+                }
+                borrowBtn.disabled = false; 
+                borrowBtn.textContent = 'Mượn sách';
+            });
+        }
+
+        // Load books on page load
+        loadAllBooks();
+
+        // Check session
+        (async function() {
+            try{
+                const r = await fetch('/api/check-session.php');
+                const d = await r.json();
+                if (!d.loggedIn) window.location.href = 'Dangnhap.html';
+            }catch(e){}
+        })();
+    </script>
+</body>
+</html>

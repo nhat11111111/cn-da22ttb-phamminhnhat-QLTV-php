@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng nhập - Quản lý thư viện</title>
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body class="auth-body">
+    <div class="auth-wrapper">
+        <div class="auth-card">
+            <div class="auth-header">
+                <h1 id="pageTitle">Đăng nhập</h1>
+                <p>Hệ thống quản lý thư viện - Truy cập mọi nơi</p>
+            </div>
+            <form method="post" class="auth-form" autocomplete="off" id="authForm">
+                <label for="identifier">Tên đăng nhập</label>
+                <input
+                    type="text"
+                    id="identifier"
+                    name="identifier"
+                    placeholder="Email hoặc số điện thoại"
+                    required
+                    list="savedAccountsList"
+                />
+                <datalist id="savedAccountsList"></datalist>
+                <label for="password">Mật khẩu</label>
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    placeholder="••••••••"
+                    required
+                />
+                <div class="auth-actions">
+                    <a href="#" aria-label="Quên mật khẩu">Quên mật khẩu?</a>
+                </div>
+                <div id="registerFields" style="display: none;">
+                    <label for="full_name">Họ và tên</label>
+                    <input
+                        type="text"
+                        id="full_name"
+                        name="full_name"
+                        placeholder="Nguyễn Văn A"
+                    />
+                    <label for="email">Email</label>
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        placeholder="email@domain.com"
+                    />
+                    <label for="address">Địa chỉ (tuỳ chọn)</label>
+                    <textarea
+                        id="address"
+                        name="address"
+                        placeholder="Số nhà, đường, phường/xã"
+                    ></textarea>
+                    <label for="password_confirm">Xác nhận mật khẩu</label>
+                    <input
+                        type="password"
+                        id="password_confirm"
+                        name="password_confirm"
+                        placeholder="Nhập lại mật khẩu"
+                    />
+                </div>
+                <button type="submit" class="primary-btn" id="submitBtn">
+                    Đăng nhập
+                </button>
+            </form>
+            <div class="auth-switch">
+                <span id="switchText">Chưa có tài khoản?</span>
+                <a href="#" id="switchLink">Tạo ngay</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal thông báo -->
+    <div class="auth-modal-overlay" id="messageModal">
+        <div class="auth-modal">
+            <h2 id="messageTitle">Thông báo</h2>
+            <p id="messageText"></p>
+            <form method="post">
+                <button type="button" class="primary-btn" id="okBtn">OK</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Persisted saved accounts (used for suggestion and backend fallback)
+        // Kept in-page so developer can edit test accounts easily.
+        const __savedAccounts = [
+            {"username":"nhat","password":"123456","loai":2,"full_name":"Nhat User"},
+            {"username":"nhatthuthu","password":"123456","loai":3,"full_name":"Nhat Thu Thu"},
+            {"username":"admin130","password":"123456","loai":1,"full_name":"Admin 130"}
+        ];
+        // Lấy mode từ URL
+        const urlParams = new URLSearchParams(window.location.search);
+        let currentMode = urlParams.get('mode') === 'register' ? 'register' : 'login';
+        let isFormDisabled = false;
+
+        // Các element
+        const pageTitle = document.getElementById('pageTitle');
+        const submitBtn = document.getElementById('submitBtn');
+        const registerFields = document.getElementById('registerFields');
+        const switchText = document.getElementById('switchText');
+        const switchLink = document.getElementById('switchLink');
+        const authForm = document.getElementById('authForm');
+        const messageModal = document.getElementById('messageModal');
+        const messageTitle = document.getElementById('messageTitle');
+        const messageText = document.getElementById('messageText');
+        const okBtn = document.getElementById('okBtn');
+
+        const identifierInput = document.getElementById('identifier');
+        const passwordInput = document.getElementById('password');
+        const fullNameInput = document.getElementById('full_name');
+        const emailInput = document.getElementById('email');
+        const addressInput = document.getElementById('address');
+        const passwordConfirmInput = document.getElementById('password_confirm');
+
+        // Khởi tạo giao diện
+        function updateUI() {
+            if (currentMode === 'login') {
+                pageTitle.textContent = 'Đăng nhập';
+                submitBtn.textContent = 'Đăng nhập';
+                registerFields.style.display = 'none';
+                switchText.textContent = 'Chưa có tài khoản?';
+                switchLink.textContent = 'Tạo ngay';
+                window.history.replaceState({}, '', 'Dangnhap.html');
+            } else {
+                pageTitle.textContent = 'Đăng ký';
+                submitBtn.textContent = 'Đăng ký';
+                registerFields.style.display = 'block';
+                switchText.textContent = 'Đã có tài khoản?';
+                switchLink.textContent = 'Đăng nhập';
+                window.history.replaceState({}, '', 'Dangnhap.html?mode=register');
+            }
+        }
+
+        // Chuyển đổi mode
+        switchLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            currentMode = currentMode === 'login' ? 'register' : 'login';
+            updateUI();
+            clearForm();
+            enableForm();
+        });
+
+        // Enable/Disable form
+        function enableForm() {
+            isFormDisabled = false;
+            identifierInput.disabled = false;
+            passwordInput.disabled = false;
+            submitBtn.disabled = false;
+            
+            if (currentMode === 'register') {
+                fullNameInput.disabled = false;
+                emailInput.disabled = false;
+                addressInput.disabled = false;
+                passwordConfirmInput.disabled = false;
+            } else {
+                fullNameInput.disabled = true;
+                emailInput.disabled = true;
+                addressInput.disabled = true;
+                passwordConfirmInput.disabled = true;
+            }
+        }
+
+        function disableForm() {
+            isFormDisabled = true;
+            identifierInput.disabled = true;
+            passwordInput.disabled = true;
+            submitBtn.disabled = true;
+            fullNameInput.disabled = true;
+            emailInput.disabled = true;
+            addressInput.disabled = true;
+            passwordConfirmInput.disabled = true;
+        }
+
+        // Clear form
+        function clearForm() {
+            authForm.reset();
+        }
+
+        // Hiển thị modal thông báo
+        function showMessage(title, message) {
+            disableForm();
+            messageTitle.textContent = title;
+            messageText.textContent = message;
+            messageModal.classList.add('show');
+        }
+
+        // Đóng modal thông báo
+        okBtn.addEventListener('click', () => {
+            messageModal.classList.remove('show');
+            
+            if (messageText.textContent === 'Đăng nhập thành công') {
+                // Chuyển hướng đến Trangchuuser.html
+                window.location.href = 'Trangchuuser.html';
+            } else if (messageText.textContent.includes('Đăng ký thành công')) {
+                // Chuyển sang trang đăng nhập
+                currentMode = 'login';
+                updateUI();
+                clearForm();
+                enableForm();
+            } else {
+                enableForm();
+            }
+        });
+
+        // Submit form
+        authForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            if (isFormDisabled) return;
+
+            const formData = new FormData();
+            formData.append('action', currentMode === 'login' ? 'login' : 'register');
+            formData.append('identifier', identifierInput.value.trim());
+            formData.append('password', passwordInput.value);
+
+            if (currentMode === 'register') {
+                formData.append('full_name', fullNameInput.value.trim());
+                formData.append('email', emailInput.value.trim());
+                formData.append('address', addressInput.value.trim());
+                formData.append('password_confirm', passwordConfirmInput.value);
+            }
+
+            try {
+                    const response = await fetch('/api/auth.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // If registration succeeded, attempt to save account to Taikhoan.html
+                    if (currentMode === 'register') {
+                        try {
+                            const saveForm = new FormData();
+                            saveForm.append('username', identifierInput.value.trim());
+                            saveForm.append('password', passwordInput.value);
+                                await fetch('/api/taikhoan.php', { method: 'POST', body: saveForm });
+                        } catch (e) {
+                            // non-fatal
+                            console.warn('Không thể lưu tài khoản cục bộ:', e);
+                        }
+                        // refresh local suggestions
+                        populateSavedAccounts();
+                    }
+                    if (currentMode === 'login') {
+                        // After successful login on server, request session info and redirect by role
+                        try {
+                                const s = await fetch('/api/check-session.php');
+                            const si = await s.json();
+                            if (si.loggedIn && si.user) {
+                                const role = String(si.user.role || si.user.loai || '');
+                                if (role === '2') {
+                                    window.location.href = 'Trangchuuser.html';
+                                } else if (role === '3') {
+                                    window.location.href = 'Trangchuthuthu.html';
+                                } else if (role === '1') {
+                                    window.location.href = 'Trangchuadmin.html';
+                                } else {
+                                    window.location.href = 'Trangchuuser.html';
+                                }
+                                return;
+                            }
+                        } catch (e) {
+                            // fallback: redirect by identifier input
+                            const id = identifierInput.value.trim();
+                            // Fallback: redirect by identifier if session check failed
+                            if (id === 'nhat') window.location.href = 'Trangchuuser.html';
+                            else if (id === 'nhatthuthu') window.location.href = 'Trangchuthuthu.html';
+                            else if (id === 'admin130') window.location.href = 'Trangchuadmin.html';
+                            else window.location.href = 'Trangchuuser.html';
+                        }
+                    } else {
+                        showMessage('Thành công', 'Đăng ký thành công! Vui lòng đăng nhập lại.');
+                    }
+                } else {
+                    showMessage('Thông báo', data.message || 'Có lỗi xảy ra');
+                }
+            } catch (error) {
+                showMessage('Lỗi', 'Không thể kết nối đến server');
+            }
+        });
+
+        // Khởi tạo
+        // Fetch saved accounts from the backend and populate datalist
+        async function populateSavedAccounts() {
+            try {
+                    const res = await fetch('/api/taikhoan.php');
+                const j = await res.json();
+                if (j.success && Array.isArray(j.accounts)) {
+                    const dl = document.getElementById('savedAccountsList');
+                    dl.innerHTML = '';
+                    j.accounts.forEach(a => {
+                        const opt = document.createElement('option');
+                        opt.value = a.username || '';
+                        dl.appendChild(opt);
+                    });
+                }
+            } catch (e) {
+                // ignore errors silently
+            }
+        }
+
+        // Load suggestions on focus
+        identifierInput.addEventListener('focus', populateSavedAccounts);
+
+        updateUI();
+        populateSavedAccounts();
+    </script>
+</body>
+</html>

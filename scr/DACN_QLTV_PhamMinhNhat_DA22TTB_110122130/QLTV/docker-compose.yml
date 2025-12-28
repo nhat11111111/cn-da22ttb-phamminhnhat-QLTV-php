@@ -1,0 +1,59 @@
+services:
+  # MongoDB Database
+  mongodb:
+    image: mongo:7.0
+    container_name: qltv_mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: qltv_demo
+    volumes:
+      - mongodb_data:/data/db
+      - ./Database/initdb.d:/docker-entrypoint-initdb.d:ro
+    networks:
+      - qltv_network
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # PHP Web Application
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: qltv_web
+    restart: unless-stopped
+    ports:
+      - "8000:80"
+    environment:
+      - QLTV_MONGO_URI=mongodb://mongodb:27017
+      - QLTV_MONGO_DB=qltv_demo
+      - QLTV_DB_HOST=mongodb
+      - QLTV_DB_NAME=qltv_demo
+    volumes:
+      - ./frontend:/var/www/html/frontend
+      - ./backend:/var/www/html/backend
+      - ./images:/var/www/html/images
+      - ./Database:/var/www/html/Database
+      - ./tmp_logs:/var/www/html/tmp_logs
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - qltv_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  mongodb_data:
+    driver: local
+
+networks:
+  qltv_network:
+    driver: bridge
